@@ -18,14 +18,22 @@ import queue
 def install_skill(target=None, force_update=False):
     """
     安装skill
-    :param target: 要安装的目标 (格式: skill@repo 或 repo)
+    :param target: 要安装的目标 (格式: skill@repo 或 repo)，或者文件路径
     :param force_update: 是否强制更新
     """
     if not target:
-        print("请指定要安装的目标 (格式: skill@repo 或 repo)")
+        print("请指定要安装的目标 (格式: skill@repo 或 repo)，或提供包含目标列表的文件路径")
         return
 
-    # 解析目标
+    # 检查target是否为文件路径
+    target_path = Path(target)
+    # 检查是否为绝对路径或相对路径的文件
+    if target_path.exists() and target_path.is_file():
+        # 如果target是文件，则从文件读取安装目标
+        install_from_file(target_path, force_update)
+        return
+    
+    # 如果不是文件路径，则按照原来的逻辑处理单个目标
     if '@' in target:
         # 格式为 skill@repo
         skill_name, repo = target.split('@', 1)
@@ -34,6 +42,34 @@ def install_skill(target=None, force_update=False):
         # 格式为 repo，格式为 owner/repo_name
         repo = target
         install_all_skills_from_repo(repo, force_update)
+
+
+def install_from_file(file_path, force_update=False):
+    """从文件读取目标列表并安装"""
+    file_path = Path(file_path)
+    if not file_path.exists():
+        print(f"文件不存在: {file_path}")
+        return
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        targets = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    
+    if not targets:
+        print(f"文件 {file_path} 中没有找到有效的安装目标")
+        return
+    
+    print(f"从文件 {file_path} 读取到 {len(targets)} 个安装目标")
+    
+    for target in targets:
+        print(f"\n正在处理: {target}")
+        if '@' in target:
+            # 格式为 skill@repo
+            skill_name, repo = target.split('@', 1)
+            install_specific_skill(skill_name, repo, force_update)
+        else:
+            # 格式为 repo，格式为 owner/repo_name
+            repo = target
+            install_all_skills_from_repo(repo, force_update)
 
 
 def install_all_skills_from_repo(repo, force_update=False):
@@ -210,3 +246,75 @@ def install_specific_skill(skill_name, repo, force_update=False):
                 shutil.rmtree(temp_dir)
         except:
             pass  # 如果临时目录清理失败，忽略错误
+
+
+def install_all_skills_from_repo_silent(repo, force_update=False):
+    """静默安装指定仓库的所有skill（不输出到终端）"""
+    # 保存原始stdout
+    original_stdout = sys.stdout
+    
+    # 创建一个StringIO对象来捕获输出
+    captured_output = StringIO()
+    
+    # 用于捕获异常
+    exception_occurred = None
+    
+    try:
+        # 重定向stdout到StringIO
+        sys.stdout = captured_output
+        
+        # 调用正常的安装函数
+        install_all_skills_from_repo(repo, force_update)
+        
+    except Exception as e:
+        # 记录异常但不立即抛出
+        exception_occurred = e
+    finally:
+        # 恢复原始stdout
+        sys.stdout = original_stdout
+        
+        # 获取捕获的输出
+        output = captured_output.getvalue()
+        
+        # 如果有异常，现在才抛出
+        if exception_occurred:
+            raise exception_occurred
+        
+        # 返回捕获的输出
+        return output
+
+
+def install_specific_skill_silent(skill_name, repo, force_update=False):
+    """静默安装指定仓库的指定skill（不输出到终端）"""
+    # 保存原始stdout
+    original_stdout = sys.stdout
+    
+    # 创建一个StringIO对象来捕获输出
+    captured_output = StringIO()
+    
+    # 用于捕获异常
+    exception_occurred = None
+    
+    try:
+        # 重定向stdout到StringIO
+        sys.stdout = captured_output
+        
+        # 调用正常的安装函数
+        install_specific_skill(skill_name, repo, force_update)
+        
+    except Exception as e:
+        # 记录异常但不立即抛出
+        exception_occurred = e
+    finally:
+        # 恢复原始stdout
+        sys.stdout = original_stdout
+        
+        # 获取捕获的输出
+        output = captured_output.getvalue()
+        
+        # 如果有异常，现在才抛出
+        if exception_occurred:
+            raise exception_occurred
+        
+        # 返回捕获的输出
+        return output

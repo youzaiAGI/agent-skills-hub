@@ -108,19 +108,19 @@ def _combined_selection_ui(stdscr, skills, repos):
                     try:
                         if current_tab == 0:  # Skills标签页
                             # 执行技能静默安装
-                            from skill_hub.commands.install import install_specific_skill_silent
+                            from skill_hub.commands.install import install_specific_skill
                             if '@' in selected_item:
                                 skill_name, repo = selected_item.split('@', 1)
                                 # 如果repo部分包含\t分隔符，取第一部分
                                 real_repo = repo.split('\t')[0]
-                                install_specific_skill_silent(skill_name, real_repo)
+                                install_specific_skill(skill_name, real_repo)
                             result_queue.put(('success', f"技能 {selected_item} 安装完成"))
                         else:  # Repos标签页
                             # 执行仓库静默安装
-                            from skill_hub.commands.install import install_all_skills_from_repo_silent
+                            from skill_hub.commands.install import install_all_skills_from_repo
                             # 按\t分割并取第一部分作为真实的仓库名
                             real_repo = selected_item.split('\t')[0]
-                            install_all_skills_from_repo_silent(real_repo)
+                            install_all_skills_from_repo(real_repo)
                             result_queue.put(('success', f"仓库 {selected_item} 安装完成"))
                     except Exception as e:
                         result_queue.put(('error', f"安装失败: {str(e)}"))
