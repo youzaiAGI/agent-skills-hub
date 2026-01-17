@@ -119,7 +119,8 @@ Agent Skills Hub 支持自定义技能列表扩展，允许用户添加自己的
 skill-name@owner/repo
 another-skill@owner/repo
 ```
-手动删除 `~/.skill-hub/skill.list` 文件
+并手动删除 `~/.skill-hub/skill.list` 文件
+
 当使用 `skill search` 或其他命令时，系统会自动将自定义技能追加到主技能列表中，与官方技能一起搜索和管理。
 
 ---
