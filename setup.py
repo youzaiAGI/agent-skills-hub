@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="agent-skills-hub",
-    version="1.0.1",
+    version="1.0.2",
     author="youzaiAGI",
     author_email="youzaiagi@gmail.com",
     description="A package manager for Agent skills",

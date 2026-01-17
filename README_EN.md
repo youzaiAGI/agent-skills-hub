@@ -70,7 +70,7 @@ pip install -e .
 
 ```bash
 skill --version
-# Output: Skill Hub v1.0.0
+# Output: Skill Hub v1.0.2
 ```
 
 ---

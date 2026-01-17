@@ -60,7 +60,7 @@ def main():
     
     # 处理版本号
     if args.version:
-        print("Skill Hub v1.0.0")
+        print("Skill Hub v1.0.2")
         return
     
     # 根据子命令调用相应函数

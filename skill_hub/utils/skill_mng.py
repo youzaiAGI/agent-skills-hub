@@ -31,18 +31,27 @@ def download_skill_files(file_path):
     except Exception as e:
         print(f"下载 {filename} 时出错: {e}")
 
+def append_custom_skills():
+    skill_custom_path = skill_hub_dir / 'skill_custom.list'
+    if skill_custom_path.exists():
+        with open(skill_custom_path, 'r', encoding='utf-8') as f:
+            skills = ['\n'] + f.readlines()
+        with open(skill_hub_dir / 'skill.list', 'a', encoding='utf-8') as f:
+            f.writelines(skills)
+
 def _search(skill_file_path, search="", page=1, size=50):
     """搜索技能文件中的技能，返回 (结果列表, 总数)"""
     if not skill_file_path.exists():
         # 如果文件不存在，下载文件
         download_skill_files(skill_file_path)
+        append_custom_skills()
     else:
         # 检查文件修改时间，如果超过24小时则重新下载
         file_modified_time = skill_file_path.stat().st_mtime
         current_time = time.time()
         if current_time - file_modified_time > 24 * 60 * 60:  # 24小时 = 24 * 60 * 60 秒
             download_skill_files(skill_file_path)
-
+            append_custom_skills()
     try:
         # 计算分页起始位置
         start_index = (page - 1) * size
@@ -82,4 +91,4 @@ def get_repos(search = "", page=1, size=50):
     return _search(skill_file_path, search, page, size)
 
 if __name__ == "__main__":  
-    print(get_repos("", 2, 3))
+    print(get_skills("", 1, 2))
