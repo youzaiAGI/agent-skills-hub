@@ -19,14 +19,14 @@ def list_skills():
     if project_skills:
         print_section(f"# 当前项目中已同步的技能 ({os.getcwd()})", project_skills)
     else:
-        print(f"# 当前项目中已同步的技能 ({os.getcwd()})")
+        print(f"# 当前项目暂无技能同步 ({os.getcwd()})")
         print()  # 添加空行分隔
         
+    global_path = os.path.expanduser("~/")
     if global_skills:
-        global_path = os.path.expanduser("~/")
-        print_section(f"# 全局目录中已同步的技能 ({global_path})", global_skills)  
+        print_section(f"# 全局已同步的技能 ({global_path})", global_skills)  
     else:
-        print("# 全局目录中已同步的技能")
+        print(f"# 全局暂无技能同步 ({global_path})")
         print()  # 添加空行分隔
 
 
