@@ -34,7 +34,6 @@ def main():
     list_parser = subparsers.add_parser('list', help='查看已安装的skill')
     
 
-    
     # search 命令
     search_parser = subparsers.add_parser('search', help='搜索skill')
     
