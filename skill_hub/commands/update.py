@@ -99,13 +99,6 @@ def update_specific_skill(skill_name, repo):
     
     print(f"正在更新技能 {skill_name}@{repo}...")
     
-    # 如果存在则删除后重新创建
-    if skill_dir.exists():
-        shutil.rmtree(skill_dir)
-    
-    # 创建父目录
-    skill_dir.parent.mkdir(parents=True, exist_ok=True)
-    
     # 从GitHub克隆仓库到临时目录
     temp_dir = Path(tempfile.mkdtemp())
     try:
@@ -117,6 +110,12 @@ def update_specific_skill(skill_name, repo):
             stderr=subprocess.PIPE,
             timeout=60  # 60秒超时
         )
+
+        # 如果存在则删除后重新创建
+        if skill_dir.exists():
+            shutil.rmtree(skill_dir)
+        # 创建父目录
+        skill_dir.parent.mkdir(parents=True, exist_ok=True)
         
         # 检查根目录是否有SKILL.md，如果是请求的技能名匹配仓库名，则使用整个仓库
         root_skill_md = temp_dir / 'SKILL.md'
