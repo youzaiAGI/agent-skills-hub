@@ -87,7 +87,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist/
-.egg-info/
+*.egg-info/
 build/
 # Gatsby files
 .cache/
