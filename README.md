@@ -111,8 +111,6 @@ skill search
 
 Agent Skills Hub 支持自定义技能列表扩展，允许用户添加自己的技能源。
 
-##### 自定义技能文件
-
 在 `~/.skill-hub/` 目录下创建 `skill_custom.list` 文件，每行添加一个自定义技能：
 
 ```
