@@ -194,7 +194,7 @@ skill manage
 skill install [options] <target>
 
 参数:
-  target        要安装的目标 (格式: skill@repo 或 repo)
+  target        要安装的目标 (格式: skill@repo 或 repo 或 txt文件路径)
 
 选项:
   -u, --update  强制更新已安装的技能
@@ -202,7 +202,8 @@ skill install [options] <target>
 示例:
   skill install web-debugger@anthropic/tools
   skill install -u web-debugger@anthropic/tools  # 强制更新
-  skill install anthropic/python-tools            # 安装整个仓库
+  skill install anthropic/python-tools     # 安装整个仓库
+  skill install /path/skills.txt   # 文件每行是一个 skill@repo 或 repo
 ```
 
 ### update - 更新技能
@@ -238,7 +239,7 @@ skill sync <agent_name> <target> [options]
 
 参数:
   agent_name    Agent 名称（如 ClaudeCode、Cursor 等）
-  target        要同步的目标 (格式: skill@repo 或 repo)
+  target        要同步的目标 (格式: skill@repo 或 repo 或 文件)
 
 选项:
   -p, --project          同步到项目级别
@@ -248,6 +249,8 @@ skill sync <agent_name> <target> [options]
 示例:
   skill sync ClaudeCode web-debugger@anthropic/tools -p
   skill sync Cursor python-tools@anthropic/python-tools -g -f
+  skill sync Cursor /path/skills.txt    # 文件每行是一个 skill@repo 或 repo
+
 ```
 
 ---
