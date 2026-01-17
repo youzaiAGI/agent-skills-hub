@@ -5,6 +5,7 @@
 import os
 from pathlib import Path
 from skill_hub.utils.agent_cmd import get_project_installed_agent_paths, get_global_installed_agent_paths
+from ..utils.agent_cmd import get_config_for_agent
 
 
 def list_skills():
@@ -64,6 +65,40 @@ def get_skill_hub_skills():
     
     return sorted(set(skills))
 
+def get_agent_skills(agent_name):
+    """获取当前项目中agent已安装的技能"""
+    """获取当前项目中已同步的技能"""
+
+    def get_skills_from_path(path):
+        skills = []
+        path_obj = Path(path)
+        if path_obj.exists():
+            # 遍历项目技能目录下的所有子目录
+            for skill_dir in path_obj.iterdir():
+                if skill_dir.is_dir():
+                    # 检查这个技能目录下是否有SKILL.md
+                    skill_md_path = skill_dir / 'SKILL.md'
+                    if skill_md_path.exists():
+                        # 检查是否是软链接
+                        if skill_dir.is_symlink():
+                            # 如果是软链接，找到目标并确定对应的 skill@repo
+                            target_path = skill_dir.resolve()
+                            skill_repo = get_skill_repo_from_path(target_path)
+                            if skill_repo:
+                                skills.append(f"{skill_dir.name} -> {skill_repo}")
+                            else:
+                                skills.append(f"{skill_dir.name}")
+                        else:
+                            # 只是一个普通目录，返回技能名称
+                            skills.append(skill_dir.name)
+    
+        return sorted(set(skills))
+    project_path = get_config_for_agent(agent_name).get("project_path", '')
+    global_path = get_config_for_agent(agent_name).get("global_path", '')
+
+    return {
+        "project_skills": get_skills_from_path(project_path),"global_skills": get_skills_from_path(global_path)
+    }
 
 def get_project_skills():
     """获取当前项目中已同步的技能"""
