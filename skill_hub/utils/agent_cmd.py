@@ -81,7 +81,6 @@ agent_path_config = get_agent_config(config_data=config_data)
 
 def get_installed_agents():
     """检查IDE是否安装，以及安装了哪些"""
-    
     installed_ide = []
     for ide, config in agent_path_config.items():
         if config["project_exists"] or config["global_exists"]:
@@ -89,11 +88,21 @@ def get_installed_agents():
     
     return installed_ide
 
-def get_current_exist_project_path():
-    return [config["project_path"] for ide, config in agent_path_config.items() if config["project_exists"]]
+def get_project_installed_agents():
+    """检查项目是否安装，以及安装了哪些"""
+    return [key for key, value in agent_path_config.items() if value["project_exists"]]
 
-def get_current_exist_global_path():
-    return [config["global_path"] for ide, config in agent_path_config.items() if config["global_exists"]]
+def get_project_installed_agent_paths():
+    """获取项目安装的技能路径"""
+    return [value["project_path"] for key, value in agent_path_config.items() if value["project_exists"]]
+
+def get_global_installed_agents():
+    """检查全局是否安装，以及安装了哪些"""
+    return [key for key, value in agent_path_config.items() if value["global_exists"]]
+
+def get_global_installed_agent_paths():
+    """获取全局安装的技能路径"""
+    return [value["global_path"] for key, value in agent_path_config.items() if value["global_exists"]]
 
 def get_config_for_agent(agent_name):
     return agent_path_config.get(agent_name, {})
@@ -107,5 +116,9 @@ if __name__ == "__main__":
     #         print(f"- {ide}")
     # else:
     #     print("未检测到任何IDE安装")
-
-    print(agent_path_config)
+    print("Installed Agents:", get_installed_agents())
+    print("Project Installed Agents:", get_project_installed_agents())
+    print("Project Installed Agent Paths:", get_project_installed_agent_paths())
+    print("Global Installed Agents:", get_global_installed_agents())
+    print("Global Installed Agent Paths:", get_global_installed_agent_paths())
+    print("Config for ClaudeCode:", get_config_for_agent("ClaudeCode"))

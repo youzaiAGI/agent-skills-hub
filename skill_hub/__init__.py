@@ -40,6 +40,14 @@ def main():
     # mng 命令
     mng_parser = subparsers.add_parser('mng', help='技能管理')
     
+    # sync 命令
+    sync_parser = subparsers.add_parser('sync', help='同步skill到agent目录')
+    sync_parser.add_argument('agent_name', help='agent名称')
+    sync_parser.add_argument('target', help='要同步的目标 (格式: skill@repo)')
+    sync_parser.add_argument('-p', '--project', action='store_true', help='同步到项目级别')
+    sync_parser.add_argument('-g', '--global', dest='global_level', action='store_true', help='同步到全局级别')
+    sync_parser.add_argument('-f', '--force', action='store_true', help='强制同步')
+    
     args = parser.parse_args()
     
     # 如果没有参数，显示帮助
@@ -72,6 +80,15 @@ def main():
     elif args.command == 'mng':
         from skill_hub.commands.mng import manage_skills
         manage_skills()
+    elif args.command == 'sync':
+        from skill_hub.commands.sync import sync_skill
+        sync_skill(
+            agent_name=args.agent_name,
+            target=args.target,
+            project_level=args.project,
+            global_level=args.global_level,
+            force_sync=args.force
+        )
     else:
         parser.print_help()
 
