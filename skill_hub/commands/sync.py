@@ -208,7 +208,7 @@ def sync_skill(agent_name, target, project_level=False, global_level=False, forc
     sync_skill_single(agent_name, target, project_level, global_level, force_sync)
 
 
-def find_conflicting_skills_in_projects(skill_names, agent_name):
+def find_conflicting_skills_in_projects(agent_name, skill_names):
     """
     检查在项目安装路径下是否存在同名skill目录
     :param skill_name: 要检查的技能名称
@@ -226,7 +226,7 @@ def find_conflicting_skills_in_projects(skill_names, agent_name):
     
     return conflicting_paths
 
-def find_conflicting_skills_in_global(skill_names, agent_name):
+def find_conflicting_skills_in_global(agent_name, skill_names):
     """
     检查在全局安装路径下是否存在同名skill目录
     :param skill_names: 要检查的技能名称列表
