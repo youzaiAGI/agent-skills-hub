@@ -107,11 +107,11 @@ skill search
 | 安装并同步到项目 | 安装并选择 Agent 同步到项目 |
 | 安装并同步到全局 | 安装并选择 Agent 同步到全局 |
 
-### 自定义技能支持
+#### 自定义技能支持
 
 Agent Skills Hub 支持自定义技能列表扩展，允许用户添加自己的技能源。
 
-#### 自定义技能文件
+##### 自定义技能文件
 
 在 `~/.skill-hub/` 目录下创建 `skill_custom.list` 文件，每行添加一个自定义技能：
 
@@ -119,19 +119,8 @@ Agent Skills Hub 支持自定义技能列表扩展，允许用户添加自己的
 skill-name@owner/repo
 another-skill@owner/repo
 ```
-
+手动删除 `~/.skill-hub/skill.list` 文件
 当使用 `skill search` 或其他命令时，系统会自动将自定义技能追加到主技能列表中，与官方技能一起搜索和管理。
-
-#### 使用自定义技能 (Using Custom Skills)
-
-1、创建一个名为 `skill_custom.list` 的文件在 `~/.skill-hub/` 目录中，并添加你的自定义技能，每行一个：
-
-```
-skill-name@owner/repo
-another-skill@owner/repo
-```
-2、手动删除 `~/.skill-hub/skill.list` 文件
-3、使用 `skill search` 或其他命令时，系统会自动将你的自定义技能追加到主技能列表中，允许你与官方技能一起搜索和管理它们。
 
 ---
 
