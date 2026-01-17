@@ -40,6 +40,9 @@ def main():
     # mng 命令
     mng_parser = subparsers.add_parser('mng', help='技能管理')
     
+    # manage 命令
+    manage_parser = subparsers.add_parser('manage', help='管理已安装的skills和agents')
+    
     # sync 命令
     sync_parser = subparsers.add_parser('sync', help='同步skill到agent目录')
     sync_parser.add_argument('agent_name', help='agent名称')
@@ -79,6 +82,9 @@ def main():
         search_skills()
     elif args.command == 'mng':
         from skill_hub.commands.mng import manage_skills
+        manage_skills()
+    elif args.command == 'manage':
+        from skill_hub.commands.manage import manage_skills
         manage_skills()
     elif args.command == 'sync':
         from skill_hub.commands.sync import sync_skill
