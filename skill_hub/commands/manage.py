@@ -8,6 +8,9 @@ import curses
 from pathlib import Path
 import threading
 import queue
+import io
+import sys
+from contextlib import redirect_stdout, redirect_stderr
 from skill_hub.utils.agent_cmd import (
     get_installed_agents, 
     get_project_installed_agents, 
@@ -429,15 +432,40 @@ def _update_skill(stdscr, skill_str):
     """更新技能"""
     stdscr.clear()
     stdscr.addstr(0, 0, f"正在更新技能: {skill_str}")
+    stdscr.addstr(1, 0, "请稍候...")
     stdscr.refresh()
     
+    # 捕获更新过程中的输出
+    output_buffer = io.StringIO()
+    error_buffer = io.StringIO()
+    
     try:
-        update_skill(skill_str)
+        # 重定向stdout和stderr来捕获update_skill函数的输出
+        with redirect_stdout(output_buffer), redirect_stderr(error_buffer):
+            update_skill(skill_str)
+        
+        # 获取捕获的输出
+        output = output_buffer.getvalue()
+        error = error_buffer.getvalue()
+        
+        # 清屏并显示结果
+        stdscr.clear()
+        stdscr.addstr(0, 0, f"已更新技能: {skill_str}")
         stdscr.addstr(1, 0, "更新完成！")
-        stdscr.addstr(2, 0, "按任意键返回...")
+        
+        # 如果有输出信息，显示在界面上（限制显示行数）
+        if output:
+            output_lines = output.strip().split('\n')
+            for i, line in enumerate(output_lines[:3]):  # 最多显示3行输出
+                if i < 3:
+                    stdscr.addstr(3+i, 0, line[:min(len(line), 60)])  # 限制每行长度
+        
+        stdscr.addstr(6, 0, "按任意键返回...")
+        
     except Exception as e:
-        stdscr.addstr(1, 0, f"更新失败: {e}")
-        stdscr.addstr(2, 0, "按任意键返回...")
+        stdscr.clear()
+        stdscr.addstr(0, 0, f"更新失败: {e}")
+        stdscr.addstr(1, 0, "按任意键返回...")
     
     stdscr.refresh()
     stdscr.getch()
