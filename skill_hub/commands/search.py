@@ -23,6 +23,18 @@ PAGE_SIZE = 20
 skill_md_url = 'https://skill-hub.oss-cn-shanghai.aliyuncs.com/skills/{owner}/{repo}/{skill_name}.md'
 
 
+class OutputCapture:
+    """捕获输出类"""
+    def __init__(self):
+        self.buffer = io.StringIO()
+
+    def write(self, text):
+        self.buffer.write(text)
+
+    def flush(self):
+        pass
+
+
 def search_skills():
     """搜索技能命令 - 多标签页界面"""
     try:
@@ -345,8 +357,50 @@ def _view_skill_md_online(stdscr, skill_str):
         stdscr.getch()
 
 
+def _wrap_line(line, width):
+    """将长行按宽度自动换行"""
+    # 处理制表符
+    line = line.replace('\t', '  ')
+    if width <= 1:
+        return [line] if line else []
+
+    result = []
+    current_line = line
+    while len(current_line) > width:
+        # 尝试在空格处换行
+        break_pos = current_line.rfind(' ', 0, width)
+        if break_pos > 0:
+            result.append(current_line[:break_pos])
+            current_line = current_line[break_pos + 1:]  # 跳过空格
+        else:
+            # 没有空格，强制在width处截断
+            result.append(current_line[:width])
+            current_line = current_line[width:]
+    if current_line:
+        result.append(current_line)
+    return result or []
+
+
+def _display_wrapped_lines(stdscr, lines, start_row, height, width):
+    """显示自动换行后的多行，返回实际使用的行数"""
+    display_row = start_row
+    for line in lines:
+        wrapped_lines = _wrap_line(line, width)
+        for wrapped_line in wrapped_lines:
+            if display_row >= height - 1:
+                break
+            # 确保不超过终端宽度，避免 curses 错误
+            safe_line = wrapped_line[:width]
+            try:
+                stdscr.addstr(display_row, 0, safe_line)
+                display_row += 1
+            except:
+                break
+    return display_row - start_row
+
+
 def _show_file_content(stdscr, title, content):
-    """显示文件内容，支持翻页"""
+    """显示文件内容，支持翻页和自动换行"""
     lines = content.split('\n')
     current_line = 0
 
@@ -358,10 +412,9 @@ def _show_file_content(stdscr, title, content):
         display_lines = height - 3
         end_line = min(current_line + display_lines, len(lines))
 
+        display_row = 2
         for i in range(current_line, end_line):
-            if i < len(lines):
-                line_content = lines[i][:width - 1]
-                stdscr.addstr(i - current_line + 2, 0, line_content)
+            display_row += _display_wrapped_lines(stdscr, [lines[i]], display_row, height, width)
 
         position_info = f"第 {current_line + 1}-{end_line} 行，共 {len(lines)} 行 (上下箭头翻页, ESC返回)"
         stdscr.addstr(height - 1, 0, position_info[:width - 1])
@@ -393,28 +446,27 @@ def _install_skill_only(stdscr, skill_str):
     try:
         import sys
         original_stdout = sys.stdout
-        output_buffer = io.StringIO()
+        output_capture = OutputCapture()
 
-        def print_to_buffer(*args, **kwargs):
-            output_buffer.write(' '.join(str(arg) for arg in args) + '\n')
-
-        sys.stdout = print_to_buffer
+        sys.stdout = output_capture
         try:
             install_skill(skill_str, force_update=False)
         finally:
             sys.stdout = original_stdout
 
-        output = output_buffer.getvalue()
+        output = output_capture.buffer.getvalue()
         stdscr.clear()
+        height, width = stdscr.getmaxyx()
         stdscr.addstr(0, 0, "安装完成:")
-        line_num = 1
+
+        display_row = 1
         for line in output.split('\n'):
             if line:
-                stdscr.addstr(line_num, 0, line[:79])  # 限制每行最多80字符
-                line_num += 1
-        if line_num == 1:
+                display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+
+        if display_row == 1:
             stdscr.addstr(0, 0, "安装完成（无输出信息）")
-        stdscr.addstr(line_num + 1, 0, "按任意键返回...")
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
     except Exception as e:
         stdscr.clear()
         stdscr.addstr(0, 0, f"安装失败: {e}")
@@ -431,18 +483,23 @@ def _install_and_sync_to_project(stdscr, skill_str):
     stdscr.addstr(1, 0, "请稍候...")
     stdscr.refresh()
 
+    import sys
+    original_stdout = sys.stdout
+    install_capture = OutputCapture()
+
+    sys.stdout = install_capture
     try:
-        output_buffer = io.StringIO()
-        error_buffer = io.StringIO()
-        with redirect_stdout(output_buffer), redirect_stderr(error_buffer):
-            install_skill(skill_str, force_update=False)
+        install_skill(skill_str, force_update=False)
     except Exception as e:
+        sys.stdout = original_stdout
         stdscr.clear()
         stdscr.addstr(0, 0, f"安装失败: {e}")
         stdscr.addstr(1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
         return
+    finally:
+        sys.stdout = original_stdout
 
     installed_agents = get_installed_agents()
     project_agents = get_project_installed_agents()
@@ -455,13 +512,12 @@ def _install_and_sync_to_project(stdscr, skill_str):
     )
 
     if selected_agents:
-        stdscr.clear()
-        stdscr.addstr(0, 0, "正在同步...")
-        stdscr.refresh()
+        sync_capture = OutputCapture()
 
-        error_occurred = False
-        for agent in selected_agents:
-            try:
+        sys.stdout = sync_capture
+        try:
+            error_occurred = False
+            for agent in selected_agents:
                 sync_skill_single(
                     agent_name=agent,
                     target=skill_str,
@@ -469,21 +525,53 @@ def _install_and_sync_to_project(stdscr, skill_str):
                     global_level=False,
                     force_sync=True
                 )
-            except Exception:
-                error_occurred = True
+        except Exception:
+            error_occurred = True
+        finally:
+            sys.stdout = original_stdout
+
+        output_lines = []
+        if install_capture.buffer.getvalue():
+            output_lines.append("安装信息:")
+            output_lines.extend(install_capture.buffer.getvalue().strip().split('\n'))
+        if sync_capture.buffer.getvalue():
+            output_lines.append("同步信息:")
+            output_lines.extend(sync_capture.buffer.getvalue().strip().split('\n'))
 
         stdscr.clear()
-        if error_occurred:
-            stdscr.addstr(0, 0, "部分同步操作失败")
+        height, width = stdscr.getmaxyx()
+        display_row = 0
+        if output_lines:
+            stdscr.addstr(display_row, 0, "结果:")
+            display_row += 1
+            for line in output_lines[:20]:  # 最多显示20行
+                if line:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+            if len(output_lines) > 20:
+                stdscr.addstr(display_row, 0, f"... (还有 {len(output_lines) - 20} 行)")
+                display_row += 1
+            if error_occurred:
+                stdscr.addstr(display_row, 0, "部分同步操作失败")
+            else:
+                stdscr.addstr(display_row, 0, "安装并同步完成！")
         else:
-            stdscr.addstr(0, 0, "安装并同步完成！")
-        stdscr.addstr(1, 0, "按任意键返回...")
+            stdscr.addstr(0, 0, "安装并同步完成（无输出信息）")
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
     else:
         stdscr.clear()
+        height, width = stdscr.getmaxyx()
+        output = install_capture.buffer.getvalue()
+        display_row = 1
         stdscr.addstr(0, 0, "安装完成，但未选择同步目标")
-        stdscr.addstr(1, 0, "按任意键返回...")
+        if output:
+            stdscr.addstr(display_row, 0, "安装信息:")
+            display_row += 1
+            for line in output.strip().split('\n'):
+                if line and display_row < height - 2:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
 
@@ -495,18 +583,23 @@ def _install_and_sync_to_global(stdscr, skill_str):
     stdscr.addstr(1, 0, "请稍候...")
     stdscr.refresh()
 
+    import sys
+    original_stdout = sys.stdout
+    install_capture = OutputCapture()
+
+    sys.stdout = install_capture
     try:
-        output_buffer = io.StringIO()
-        error_buffer = io.StringIO()
-        with redirect_stdout(output_buffer), redirect_stderr(error_buffer):
-            install_skill(skill_str, force_update=False)
+        install_skill(skill_str, force_update=False)
     except Exception as e:
+        sys.stdout = original_stdout
         stdscr.clear()
         stdscr.addstr(0, 0, f"安装失败: {e}")
         stdscr.addstr(1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
         return
+    finally:
+        sys.stdout = original_stdout
 
     installed_agents = get_installed_agents()
     global_agents = get_global_installed_agents()
@@ -519,13 +612,12 @@ def _install_and_sync_to_global(stdscr, skill_str):
     )
 
     if selected_agents:
-        stdscr.clear()
-        stdscr.addstr(0, 0, "正在同步...")
-        stdscr.refresh()
+        sync_capture = OutputCapture()
 
-        error_occurred = False
-        for agent in selected_agents:
-            try:
+        sys.stdout = sync_capture
+        try:
+            error_occurred = False
+            for agent in selected_agents:
                 sync_skill_single(
                     agent_name=agent,
                     target=skill_str,
@@ -533,21 +625,53 @@ def _install_and_sync_to_global(stdscr, skill_str):
                     global_level=True,
                     force_sync=True
                 )
-            except Exception:
-                error_occurred = True
+        except Exception:
+            error_occurred = True
+        finally:
+            sys.stdout = original_stdout
+
+        output_lines = []
+        if install_capture.buffer.getvalue():
+            output_lines.append("安装信息:")
+            output_lines.extend(install_capture.buffer.getvalue().strip().split('\n'))
+        if sync_capture.buffer.getvalue():
+            output_lines.append("同步信息:")
+            output_lines.extend(sync_capture.buffer.getvalue().strip().split('\n'))
 
         stdscr.clear()
-        if error_occurred:
-            stdscr.addstr(0, 0, "部分同步操作失败")
+        height, width = stdscr.getmaxyx()
+        display_row = 0
+        if output_lines:
+            stdscr.addstr(display_row, 0, "结果:")
+            display_row += 1
+            for line in output_lines[:20]:  # 最多显示20行
+                if line:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+            if len(output_lines) > 20:
+                stdscr.addstr(display_row, 0, f"... (还有 {len(output_lines) - 20} 行)")
+                display_row += 1
+            if error_occurred:
+                stdscr.addstr(display_row, 0, "部分同步操作失败")
+            else:
+                stdscr.addstr(display_row, 0, "安装并同步完成！")
         else:
-            stdscr.addstr(0, 0, "安装并同步完成！")
-        stdscr.addstr(1, 0, "按任意键返回...")
+            stdscr.addstr(0, 0, "安装并同步完成（无输出信息）")
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
     else:
         stdscr.clear()
+        height, width = stdscr.getmaxyx()
+        output = install_capture.buffer.getvalue()
+        display_row = 1
         stdscr.addstr(0, 0, "安装完成，但未选择同步目标")
-        stdscr.addstr(1, 0, "按任意键返回...")
+        if output:
+            stdscr.addstr(display_row, 0, "安装信息:")
+            display_row += 1
+            for line in output.strip().split('\n'):
+                if line and display_row < height - 2:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
 
@@ -560,14 +684,29 @@ def _install_repo_only(stdscr, repo_str):
     stdscr.refresh()
 
     try:
-        output_buffer = io.StringIO()
-        error_buffer = io.StringIO()
-        with redirect_stdout(output_buffer), redirect_stderr(error_buffer):
-            install_skill(repo_str, force_update=True)
+        import sys
+        original_stdout = sys.stdout
+        output_capture = OutputCapture()
 
+        sys.stdout = output_capture
+        try:
+            install_skill(repo_str, force_update=True)
+        finally:
+            sys.stdout = original_stdout
+
+        output = output_capture.buffer.getvalue()
         stdscr.clear()
-        stdscr.addstr(0, 0, f"更新完成: {repo_str}")
-        stdscr.addstr(1, 0, "按任意键返回...")
+        height, width = stdscr.getmaxyx()
+        stdscr.addstr(0, 0, "更新完成:")
+
+        display_row = 1
+        for line in output.split('\n'):
+            if line:
+                display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+
+        if display_row == 1:
+            stdscr.addstr(0, 0, "更新完成（无输出信息）")
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
     except Exception as e:
         stdscr.clear()
         stdscr.addstr(0, 0, f"更新失败: {e}")
@@ -584,18 +723,23 @@ def _install_repo_and_sync_to_project(stdscr, repo_str):
     stdscr.addstr(1, 0, "请稍候...")
     stdscr.refresh()
 
+    import sys
+    original_stdout = sys.stdout
+    install_capture = OutputCapture()
+
+    sys.stdout = install_capture
     try:
-        output_buffer = io.StringIO()
-        error_buffer = io.StringIO()
-        with redirect_stdout(output_buffer), redirect_stderr(error_buffer):
-            install_skill(repo_str, force_update=True)
+        install_skill(repo_str, force_update=True)
     except Exception as e:
+        sys.stdout = original_stdout
         stdscr.clear()
         stdscr.addstr(0, 0, f"更新失败: {e}")
         stdscr.addstr(1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
         return
+    finally:
+        sys.stdout = original_stdout
 
     installed_agents = get_installed_agents()
     project_agents = get_project_installed_agents()
@@ -608,13 +752,12 @@ def _install_repo_and_sync_to_project(stdscr, repo_str):
     )
 
     if selected_agents:
-        stdscr.clear()
-        stdscr.addstr(0, 0, "正在同步...")
-        stdscr.refresh()
+        sync_capture = OutputCapture()
 
-        error_occurred = False
-        for agent in selected_agents:
-            try:
+        sys.stdout = sync_capture
+        try:
+            error_occurred = False
+            for agent in selected_agents:
                 sync_skill_single(
                     agent_name=agent,
                     target=repo_str,
@@ -622,21 +765,53 @@ def _install_repo_and_sync_to_project(stdscr, repo_str):
                     global_level=False,
                     force_sync=True
                 )
-            except Exception:
-                error_occurred = True
+        except Exception:
+            error_occurred = True
+        finally:
+            sys.stdout = original_stdout
+
+        output_lines = []
+        if install_capture.buffer.getvalue():
+            output_lines.append("更新信息:")
+            output_lines.extend(install_capture.buffer.getvalue().strip().split('\n'))
+        if sync_capture.buffer.getvalue():
+            output_lines.append("同步信息:")
+            output_lines.extend(sync_capture.buffer.getvalue().strip().split('\n'))
 
         stdscr.clear()
-        if error_occurred:
-            stdscr.addstr(0, 0, "部分同步操作失败")
+        height, width = stdscr.getmaxyx()
+        display_row = 0
+        if output_lines:
+            stdscr.addstr(display_row, 0, "结果:")
+            display_row += 1
+            for line in output_lines[:20]:  # 最多显示20行
+                if line:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+            if len(output_lines) > 20:
+                stdscr.addstr(display_row, 0, f"... (还有 {len(output_lines) - 20} 行)")
+                display_row += 1
+            if error_occurred:
+                stdscr.addstr(display_row, 0, "部分同步操作失败")
+            else:
+                stdscr.addstr(display_row, 0, "更新并同步完成！")
         else:
-            stdscr.addstr(0, 0, "更新并同步完成！")
-        stdscr.addstr(1, 0, "按任意键返回...")
+            stdscr.addstr(0, 0, "更新并同步完成（无输出信息）")
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
     else:
         stdscr.clear()
+        height, width = stdscr.getmaxyx()
+        output = install_capture.buffer.getvalue()
+        display_row = 1
         stdscr.addstr(0, 0, "更新完成，但未选择同步目标")
-        stdscr.addstr(1, 0, "按任意键返回...")
+        if output:
+            stdscr.addstr(display_row, 0, "更新信息:")
+            display_row += 1
+            for line in output.strip().split('\n'):
+                if line and display_row < height - 2:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
 
@@ -648,18 +823,23 @@ def _install_repo_and_sync_to_global(stdscr, repo_str):
     stdscr.addstr(1, 0, "请稍候...")
     stdscr.refresh()
 
+    import sys
+    original_stdout = sys.stdout
+    install_capture = OutputCapture()
+
+    sys.stdout = install_capture
     try:
-        output_buffer = io.StringIO()
-        error_buffer = io.StringIO()
-        with redirect_stdout(output_buffer), redirect_stderr(error_buffer):
-            install_skill(repo_str, force_update=True)
+        install_skill(repo_str, force_update=True)
     except Exception as e:
+        sys.stdout = original_stdout
         stdscr.clear()
         stdscr.addstr(0, 0, f"更新失败: {e}")
         stdscr.addstr(1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
         return
+    finally:
+        sys.stdout = original_stdout
 
     installed_agents = get_installed_agents()
     global_agents = get_global_installed_agents()
@@ -672,13 +852,12 @@ def _install_repo_and_sync_to_global(stdscr, repo_str):
     )
 
     if selected_agents:
-        stdscr.clear()
-        stdscr.addstr(0, 0, "正在同步...")
-        stdscr.refresh()
+        sync_capture = OutputCapture()
 
-        error_occurred = False
-        for agent in selected_agents:
-            try:
+        sys.stdout = sync_capture
+        try:
+            error_occurred = False
+            for agent in selected_agents:
                 sync_skill_single(
                     agent_name=agent,
                     target=repo_str,
@@ -686,21 +865,53 @@ def _install_repo_and_sync_to_global(stdscr, repo_str):
                     global_level=True,
                     force_sync=True
                 )
-            except Exception:
-                error_occurred = True
+        except Exception:
+            error_occurred = True
+        finally:
+            sys.stdout = original_stdout
+
+        output_lines = []
+        if install_capture.buffer.getvalue():
+            output_lines.append("更新信息:")
+            output_lines.extend(install_capture.buffer.getvalue().strip().split('\n'))
+        if sync_capture.buffer.getvalue():
+            output_lines.append("同步信息:")
+            output_lines.extend(sync_capture.buffer.getvalue().strip().split('\n'))
 
         stdscr.clear()
-        if error_occurred:
-            stdscr.addstr(0, 0, "部分同步操作失败")
+        height, width = stdscr.getmaxyx()
+        display_row = 0
+        if output_lines:
+            stdscr.addstr(display_row, 0, "结果:")
+            display_row += 1
+            for line in output_lines[:20]:  # 最多显示20行
+                if line:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+            if len(output_lines) > 20:
+                stdscr.addstr(display_row, 0, f"... (还有 {len(output_lines) - 20} 行)")
+                display_row += 1
+            if error_occurred:
+                stdscr.addstr(display_row, 0, "部分同步操作失败")
+            else:
+                stdscr.addstr(display_row, 0, "更新并同步完成！")
         else:
-            stdscr.addstr(0, 0, "更新并同步完成！")
-        stdscr.addstr(1, 0, "按任意键返回...")
+            stdscr.addstr(0, 0, "更新并同步完成（无输出信息）")
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
     else:
         stdscr.clear()
+        height, width = stdscr.getmaxyx()
+        output = install_capture.buffer.getvalue()
+        display_row = 1
         stdscr.addstr(0, 0, "更新完成，但未选择同步目标")
-        stdscr.addstr(1, 0, "按任意键返回...")
+        if output:
+            stdscr.addstr(display_row, 0, "更新信息:")
+            display_row += 1
+            for line in output.strip().split('\n'):
+                if line and display_row < height - 2:
+                    display_row += _display_wrapped_lines(stdscr, [line], display_row, height, width)
+        stdscr.addstr(display_row + 1, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
 

@@ -130,7 +130,7 @@ def sync_skill_single(agent_name, target, project_level=False, global_level=Fals
             
             # 创建软链接
             target_path.symlink_to(source_path.resolve())
-            print(f"已创建软链接: {target_path} -> {source_path.resolve()}")
+            print(f"已创建软链接: {target_path} -> {source_path.resolve()}\n")
         except OSError as e:
             print(f"创建软链接失败: {e}")
     else:
@@ -179,7 +179,7 @@ def sync_skill_single(agent_name, target, project_level=False, global_level=Fals
                         
                         # 创建软链接
                         target_path.symlink_to(source_path.resolve())
-                        print(f"已创建软链接: {target_path} -> {source_path.resolve()}")
+                        print(f"已创建软链接: {target_path} -> {source_path.resolve()}\n")
                     except OSError as e:
                         print(f"创建软链接失败: {e}")
 
