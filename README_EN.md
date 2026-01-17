@@ -297,6 +297,12 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for det
 
 ---
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=youzaiAGI/agent-skills-hub&type=Date)](https://star-history.com/#youzaiAGI/agent-skills-hub&Date)
+
+---
+
 ## Contact
 
 - Author: youzaiAGI

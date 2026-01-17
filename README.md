@@ -297,6 +297,12 @@ config_data = {
 
 ---
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=youzaiAGI/agent-skills-hub&type=Date)](https://star-history.com/#youzaiAGI/agent-skills-hub&Date)
+
+---
+
 ## 联系方式
 
 - 作者：youzaiAGI
