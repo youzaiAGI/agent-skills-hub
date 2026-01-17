@@ -6,6 +6,7 @@ import os
 import shutil
 from pathlib import Path
 import argparse
+from typing import Any
 from ..utils.agent_cmd import get_config_for_agent
 
 
@@ -205,3 +206,39 @@ def sync_skill(agent_name, target, project_level=False, global_level=False, forc
         return
     
     sync_skill_single(agent_name, target, project_level, global_level, force_sync)
+
+
+def find_conflicting_skills_in_projects(skill_names, agent_name):
+    """
+    检查在项目安装路径下是否存在同名skill目录
+    :param skill_name: 要检查的技能名称
+    :param agent_name: agent名称
+    :return: 包含同名skill的项目路径列表
+    """
+    conflicting_paths = []
+    project_path = get_config_for_agent(agent_name).get("project_path", '')
+
+    for skill_name in skill_names:
+        skill_path = Path(project_path) / skill_name
+        skill_md_path = skill_path / 'SKILL.md'
+        if skill_path.exists() and skill_path.is_dir() and skill_md_path.exists():
+            conflicting_paths.append(str(skill_path))
+    
+    return conflicting_paths
+
+def find_conflicting_skills_in_global(skill_names, agent_name):
+    """
+    检查在全局安装路径下是否存在同名skill目录
+    :param skill_names: 要检查的技能名称列表
+    :return: 包含同名skill的全局路径列表
+    """
+    conflicting_paths = []
+    global_path = get_config_for_agent(agent_name).get("global_path", '')
+
+    for skill_name in skill_names:
+        skill_path = Path(global_path) / skill_name
+        skill_md_path = skill_path / 'SKILL.md'
+        if skill_path.exists() and skill_path.is_dir() and skill_md_path.exists():
+            conflicting_paths.append(str(skill_path))
+    
+    return conflicting_paths
