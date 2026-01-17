@@ -1,0 +1,54 @@
+{
+  "ClaudeCode": [
+    ".claude/skills",
+    "~/.claude/skills"
+  ],
+  "Gemini": [
+    ".gemini/skills",
+    "~/.gemini/skills"
+  ],
+  "Codex": [
+    ".codex/skills",
+    "~/.codex/skills"
+  ],
+  "OpenCode": [
+    ".opencode/skill",
+    "~/.config/opencode/skill"
+  ],
+  "Cursor": [
+    ".cursor/skills",
+    "~/.cursor/skills"
+  ],
+  "Antigravity": [
+    ".agent/skills",
+    "~/.gemini/antigravity/skills"
+  ],
+  "Windsurf": [
+    ".windsurf/skills",
+    "~/.codeium/windsurf/skills"
+  ],
+  "Amp": [
+    ".agents/skills",
+    "~/.config/agents/skills"
+  ],
+  "Qwen": [
+    ".qwen/skills",
+    "~/.qwen/skills"
+  ],
+  "Qoder": [
+    ".qoder/skills",
+    "~/.qoder/skills"
+  ],
+  "KiloCode": [
+    ".kilocode/skills",
+    "~/.kilocode/skills"
+  ],
+  "RooCode": [
+    ".roo/skills",
+    "~/.roo/skills"
+  ],
+  "Goose": [
+    ".goose/skills",
+    "~/.config/goose/skills"
+  ]
+}
