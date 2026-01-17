@@ -1,5 +1,7 @@
 <div align="center">
 
+**[English](README_EN.md)** | 简体中文
+
 # Agent Skills Hub
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
@@ -7,6 +9,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.1-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **一个用于管理 AI Agent 技能包的统一命令行工具**
+
 
 </div>
 
@@ -129,7 +132,7 @@ skill manage
 | Tab | 功能 | 数据来源 |
 |-----|------|----------|
 | **Skill-Hub** | ~/.skill-hub 中的所有技能 | `~/.skill-hub` |
-| **ClaudeCode** | ClaudeCode 已同步的技能 | `.claude_code/skills` `~/.claude_code/skills` |
+| **ClaudeCode** | ClaudeCode 已同步的技能 | `.claude/skills` `~/.claude/skills` |
 | **Cursor** | Cursor 已同步的技能 | `.cursor/skills` `~/.cursor/skills` |
 | ... | 其他已安装的 Agent | - |
 
@@ -214,20 +217,6 @@ skill uninstall <target>
 skill list
 ```
 
-输出示例：
-
-```
-# Skill Hub 中的所有技能 (~/.skill-hub)
-python-tools@anthropic/python-tools
-git-workflow@anthropic/git-workflow
-
-# 当前项目中已同步的技能 (/path/to/project)
-python-tools@anthropic/python-tools
-
-# 全局已同步的技能 (~/.claude/skills)
-git-workflow@anthropic/git-workflow
-```
-
 ### sync - 同步技能到 Agent
 
 ```bash
@@ -268,41 +257,15 @@ owner/
 
 ---
 
-## 目录结构
-
-```
-~/.skill-hub/              # 技能缓存目录
-└── owner/
-    └── repo-name/
-        ├── skill-a/
-        │   └── SKILL.md
-        └── skill-b/
-            └── SKILL.md
-
-<project>/.claude/skills/  # 项目级技能（软链接）
-├── skill-a -> ~/.skill-hub/owner/repo-name/skill-a/
-└── skill-b -> ~/.skill-hub/owner/repo-name/skill-b/
-
-~/.claude/skills/          # 全局级技能（软链接）
-└── skill-c -> ~/.skill-hub/owner/repo-name/skill-c/
-```
-
----
-
 ## 开发指南
 
 ### 环境设置
 
 ```bash
-# clone 仓库
 git clone https://github.com/youzaiAGI/agent-skills-hub.git
 cd agent-skills-hub
-
-# 创建虚拟环境
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 安装依赖
 pip install -e .
 ```
 
@@ -320,73 +283,6 @@ config_data = {
 }
 ```
 
-### 运行测试
-
-```bash
-# 使用模块方式运行
-python -m skill_hub <command>
-
-# 或使用安装的命令
-skill <command>
-```
-
----
-
-## 配置文件
-
-技能列表和仓库排序文件会在首次运行时自动下载到 `~/.skill-hub/` 目录：
-
-- `~/.skill-hub/skill.list` - 可用技能列表
-- `~/.skill-hub/repo.sort` - 仓库排序列表
-
-这些文件会自动每 24 小时更新一次。
-
----
-
-## 常见问题
-
-### Q: 如何查看某个技能的详细信息？
-
-A: 使用 `skill search` 命令进入交互式界面，选择技能后按 Enter，然后选择"查看 SKILL.md"。
-
-### Q: 同步失败怎么办？
-
-A: 检查以下几点：
-1. 目标 Agent 的目录是否存在
-2. 确保使用 `-p` 或 `-g` 指定同步级别
-3. 使用 `-f` 参数强制覆盖已存在的技能
-
-### Q: 支持从本地文件批量安装吗？
-
-A: 支持。创建一个包含目标列表的文件（每行一个），然后：
-
-```bash
-skill install skills.txt
-```
-
-文件格式示例：
-```
-web-debugger@anthropic/tools
-python-tools@anthropic/python-tools
-```
-
-### Q: 如何同步到多个 Agent？
-
-A: 逐个同步，或在 `skill search` 交互界面中选择"安装并同步"时，会显示多选菜单让你选择多个 Agent。
-
----
-
-## 版本历史
-
-### v1.0.1
-- 添加自动换行显示长输出
-- 改进同步输出格式
-- 优化搜索界面交互
-
-### v1.0.0
-- 初始版本发布
-- 支持基本的安装、卸载、搜索、同步功能
-
 ---
 
 ## 许可证
@@ -399,14 +295,6 @@ A: 逐个同步，或在 `skill search` 交互界面中选择"安装并同步"�
 
 欢迎贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
 
-### 贡献流程
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 提交 Pull Request
-
 ---
 
 ## 联系方式
@@ -415,11 +303,6 @@ A: 逐个同步，或在 `skill search` 交互界面中选择"安装并同步"�
 - 邮箱：youzaiagi@gmail.com
 - 项目主页：https://github.com/youzaiAGI/agent-skills-hub
 
----
-
-## 致谢
-
-感谢所有使用和贡献本项目的开发者！
 
 <div align="center">
 
