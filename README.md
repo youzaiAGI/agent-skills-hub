@@ -128,10 +128,9 @@ skill manage
 
 | Tab | 功能 | 数据来源 |
 |-----|------|----------|
-| **Skill-Hub** | ~/.skill-hub 中的所有技能 | `get_skill_hub_skills()` |
-| **ClaudeCode** | ClaudeCode 已同步的技能 | `get_agent_skills()` |
-| **Cursor** | Cursor 已同步的技能 | `get_agent_skills()` |
-| **Windsurf** | Windsurf 已同步的技能 | `get_agent_skills()` |
+| **Skill-Hub** | ~/.skill-hub 中的所有技能 | `~/.skill-hub` |
+| **ClaudeCode** | ClaudeCode 已同步的技能 | `.claude_code/skills` `~/.claude_code/skills` |
+| **Cursor** | Cursor 已同步的技能 | `.cursor/skills` `~/.cursor/skills` |
 | ... | 其他已安装的 Agent | - |
 
 #### Skill-Hub Tab 详情操作
