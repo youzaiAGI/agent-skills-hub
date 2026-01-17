@@ -43,7 +43,7 @@ def main():
     # sync 命令
     sync_parser = subparsers.add_parser('sync', help='同步skill到agent目录')
     sync_parser.add_argument('agent_name', help='agent名称')
-    sync_parser.add_argument('target', help='要同步的目标 (格式: skill@repo)')
+    sync_parser.add_argument('target', help='要同步的目标 (格式: skill@repo 或 repo)')
     sync_parser.add_argument('-p', '--project', action='store_true', help='同步到项目级别')
     sync_parser.add_argument('-g', '--global', dest='global_level', action='store_true', help='同步到全局级别')
     sync_parser.add_argument('-f', '--force', action='store_true', help='强制同步')

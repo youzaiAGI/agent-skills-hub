@@ -9,26 +9,45 @@ import argparse
 from ..utils.agent_cmd import get_config_for_agent
 
 
-def sync_skill(agent_name, target, project_level=False, global_level=False, force_sync=False):
-    """
-    同步技能到特定 agent 目录
-    :param agent_name: agent 名称
-    :param target: 要同步的目标 (格式: skill@repo)
-    :param project_level: 是否同步到项目级别 (-p)
-    :param global_level: 是否同步到全局级别 (-g)
-    :param force_sync: 是否强制同步 (-f)
-    """
-    if not target:
-        print("请指定要同步的目标 (格式: skill@repo)")
+def sync_skill_from_file(file_path, agent_name, project_level=False, global_level=False, force_sync=False):
+    """从文件读取目标列表并同步"""
+    file_path = Path(file_path)
+    if not file_path.exists():
+        print(f"文件不存在: {file_path}")
         return
-
-    if '@' not in target:
-        print("目标格式错误，应为 skill@repo 格式")
-        return
-
-    # 解析技能和仓库
-    skill_name, repo = target.split('@', 1)
     
+    with open(file_path, 'r', encoding='utf-8') as f:
+        targets = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    
+    if not targets:
+        print(f"文件 {file_path} 中没有找到有效的同步目标")
+        return
+    
+    print(f"从文件 {file_path} 读取到 {len(targets)} 个同步目标")
+    
+    for target in targets:
+        print(f"\n正在处理: {target}")
+        sync_skill_single(
+            agent_name=agent_name,
+            target=target,
+            project_level=project_level,
+            global_level=global_level,
+            force_sync=force_sync
+        )
+
+
+def sync_skill_single(agent_name, target, project_level=False, global_level=False, force_sync=False):
+    """同步单个技能或仓库"""
+    skill_name = None
+    repo = None
+    
+    if '@' in target:
+        # 格式为 skill@repo
+        skill_name, repo = target.split('@', 1)
+    else:
+        # 格式为 repo，同步整个仓库的所有技能
+        repo = target
+
     # 解析仓库为 owner/repo_name 格式
     repo_parts = repo.split('/')
     if len(repo_parts) != 2:
@@ -59,72 +78,130 @@ def sync_skill(agent_name, target, project_level=False, global_level=False, forc
     target_base_path = Path(target_base_path).expanduser()
     target_base_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 源路径：~/.skill-hub/owner/repo_name/skill_name
+    # 源路径：~/.skill-hub/owner/repo_name
     skill_hub_dir = Path.home() / '.skill-hub'
-    source_path = skill_hub_dir / owner / repo_name / skill_name
+    repo_source_path = skill_hub_dir / owner / repo_name
 
-    if not source_path.exists():
-        print(f"源技能路径不存在: {source_path}")
+    if not repo_source_path.exists():
+        print(f"源仓库路径不存在: {repo_source_path}")
         return
 
-    # 目标路径：agent 对应的技能目录下的技能名
-    target_path = target_base_path / skill_name
+    if skill_name:
+        # 同步特定技能
+        source_path = repo_source_path / skill_name
 
-    # 检查目标路径是否已存在
-    if target_path.exists():
-        if force_sync:
-            # 强制同步：删除已存在的目标
-            if target_path.is_symlink():
-                target_path.unlink()
-                print(f"已删除现有软链接: {target_path}")
-            elif target_path.is_dir():
-                shutil.rmtree(target_path)
-                print(f"已删除现有目录: {target_path}")
-        else:
-            # 非强制同步：如果目标是目录且包含 SKILL.md 文件，则不进行同步
-            if target_path.is_dir():
-                skill_md_path = target_path / 'SKILL.md'
-                if skill_md_path.exists():
-                    print(f"目标目录 {target_path} 已存在且包含 SKILL.md 文件，跳过同步。使用 -f 参数强制同步。")
-                    return
+        if not source_path.exists():
+            print(f"源技能路径不存在: {source_path}")
+            return
 
-    # 创建目标目录（如果不存在）
-    target_base_path.mkdir(parents=True, exist_ok=True)
+        # 目标路径：agent 对应的技能目录下的技能名
+        target_path = target_base_path / skill_name
 
-    # 创建软链接
-    try:
-        # 如果目标已存在（非强制模式下），先删除
+        # 检查目标路径是否已存在
         if target_path.exists():
-            if target_path.is_symlink():
-                target_path.unlink()
-            elif target_path.is_dir():
-                shutil.rmtree(target_path)
-        
+            if force_sync:
+                # 强制同步：删除已存在的目标
+                if target_path.is_symlink():
+                    target_path.unlink()
+                    print(f"已删除现有软链接: {target_path}")
+                elif target_path.is_dir():
+                    shutil.rmtree(target_path)
+                    print(f"已删除现有目录: {target_path}")
+            else:
+                # 非强制同步：如果目标是目录且包含 SKILL.md 文件，则不进行同步
+                if target_path.is_dir():
+                    skill_md_path = target_path / 'SKILL.md'
+                    if skill_md_path.exists():
+                        print(f"目标目录 {target_path} 已存在且包含 SKILL.md 文件，跳过同步。使用 -f 参数强制同步。")
+                        return
+
+        # 创建目标目录（如果不存在）
+        target_base_path.mkdir(parents=True, exist_ok=True)
+
         # 创建软链接
-        target_path.symlink_to(source_path.resolve())
-        print(f"已创建软链接: {target_path} -> {source_path.resolve()}")
-    except OSError as e:
-        print(f"创建软链接失败: {e}")
+        try:
+            # 如果目标已存在（非强制模式下），先删除
+            if target_path.exists():
+                if target_path.is_symlink():
+                    target_path.unlink()
+                elif target_path.is_dir():
+                    shutil.rmtree(target_path)
+            
+            # 创建软链接
+            target_path.symlink_to(source_path.resolve())
+            print(f"已创建软链接: {target_path} -> {source_path.resolve()}")
+        except OSError as e:
+            print(f"创建软链接失败: {e}")
+    else:
+        # 同步整个仓库的所有技能
+        # 遍历仓库目录中的所有子目录（这些应该是技能目录）
+        for item in repo_source_path.iterdir():
+            if item.is_dir():
+                # 检查此目录是否包含 SKILL.md 文件，以确认它是一个技能
+                skill_md_path = item / 'SKILL.md'
+                if skill_md_path.exists():
+                    skill_name = item.name
+                    source_path = item  # 源路径就是这个子目录
+                    
+                    # 目标路径：agent 对应的技能目录下的技能名
+                    target_path = target_base_path / skill_name
+
+                    # 检查目标路径是否已存在
+                    if target_path.exists():
+                        if force_sync:
+                            # 强制同步：删除已存在的目标
+                            if target_path.is_symlink():
+                                target_path.unlink()
+                                print(f"已删除现有软链接: {target_path}")
+                            elif target_path.is_dir():
+                                shutil.rmtree(target_path)
+                                print(f"已删除现有目录: {target_path}")
+                        else:
+                            # 非强制同步：如果目标是目录且包含 SKILL.md 文件，则不进行同步
+                            if target_path.is_dir():
+                                target_skill_md_path = target_path / 'SKILL.md'
+                                if target_skill_md_path.exists():
+                                    print(f"目标目录 {target_path} 已存在且包含 SKILL.md 文件，跳过同步。使用 -f 参数强制同步。")
+                                    continue  # 继续处理下一个技能
+
+                    # 创建目标目录（如果不存在）
+                    target_base_path.mkdir(parents=True, exist_ok=True)
+
+                    # 创建软链接
+                    try:
+                        # 如果目标已存在（非强制模式下），先删除
+                        if target_path.exists():
+                            if target_path.is_symlink():
+                                target_path.unlink()
+                            elif target_path.is_dir():
+                                shutil.rmtree(target_path)
+                        
+                        # 创建软链接
+                        target_path.symlink_to(source_path.resolve())
+                        print(f"已创建软链接: {target_path} -> {source_path.resolve()}")
+                    except OSError as e:
+                        print(f"创建软链接失败: {e}")
 
 
-def main(args=None):
-    parser = argparse.ArgumentParser(description='同步技能到特定 agent 目录')
-    parser.add_argument('agent_name', help='agent 名称')
-    parser.add_argument('target', help='要同步的目标 (格式: skill@repo)')
-    parser.add_argument('-p', '--project', action='store_true', help='同步到项目级别')
-    parser.add_argument('-g', '--global', dest='global_level', action='store_true', help='同步到全局级别')
-    parser.add_argument('-f', '--force', action='store_true', help='强制同步')
+def sync_skill(agent_name, target, project_level=False, global_level=False, force_sync=False):
+    """
+    同步技能到特定 agent 目录
+    :param agent_name: agent 名称
+    :param target: 要同步的目标 (格式: skill@repo 或 repo)，或者文件路径
+    :param project_level: 是否同步到项目级别 (-p)
+    :param global_level: 是否同步到全局级别 (-g)
+    :param force_sync: 是否强制同步 (-f)
+    """
+    if not target:
+        print("请指定要同步的目标 (格式: skill@repo 或 repo)，或提供包含目标列表的文件路径")
+        return
 
-    parsed_args = parser.parse_args(args)
-
-    sync_skill(
-        agent_name=parsed_args.agent_name,
-        target=parsed_args.target,
-        project_level=parsed_args.project,
-        global_level=parsed_args.global_level,
-        force_sync=parsed_args.force
-    )
-
-
-if __name__ == "__main__":
-    main()
+    # 检查target是否为文件路径
+    target_path = Path(target)
+    # 检查是否为绝对路径或相对路径的文件
+    if target_path.exists() and target_path.is_file():
+        # 如果target是文件，则从文件读取同步目标
+        sync_skill_from_file(target_path, agent_name, project_level, global_level, force_sync)
+        return
+    
+    sync_skill_single(agent_name, target, project_level, global_level, force_sync)
