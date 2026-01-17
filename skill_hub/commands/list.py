@@ -14,7 +14,7 @@ def list_skills():
     global_skills = get_global_skills()
     
     if skill_hub_skills:
-        print_section("# Skill Hub 中的所有技能", skill_hub_skills)
+        print_section("# Skill Hub 中的所有技能 (~/.skill-hub)", skill_hub_skills)
     
     if project_skills:
         print_section(f"# 当前项目中已同步的技能 ({os.getcwd()})", project_skills)
