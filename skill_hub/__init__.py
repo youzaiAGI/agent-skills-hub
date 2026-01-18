@@ -37,9 +37,6 @@ def main():
     # search 命令
     search_parser = subparsers.add_parser('search', help='搜索skill')
     
-    # mng 命令
-    mng_parser = subparsers.add_parser('mng', help='技能管理')
-    
     # manage 命令
     manage_parser = subparsers.add_parser('manage', help='管理已安装的skills和agents')
     
@@ -80,9 +77,6 @@ def main():
     elif args.command == 'search':
         from skill_hub.commands.search import search_skills
         search_skills()
-    elif args.command == 'mng':
-        from skill_hub.commands.mng import manage_skills
-        manage_skills()
     elif args.command == 'manage':
         from skill_hub.commands.manage import manage_skills
         manage_skills()
