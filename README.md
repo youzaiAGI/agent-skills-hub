@@ -70,7 +70,7 @@ pip install -e .
 
 ```bash
 skill --version
-# 输出: Skill Hub v1.0.2
+# 输出: Agent Skills Hub v1.0.2
 ```
 
 ---
