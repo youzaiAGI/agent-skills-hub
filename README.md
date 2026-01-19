@@ -70,7 +70,7 @@ pip install -e .
 
 ```bash
 skill --version
-# 输出: Agent Skills Hub v1.0.3
+# 输出: Agent Skills Hub v1.0.4
 ```
 
 ---
@@ -118,9 +118,9 @@ Agent Skills Hub 支持自定义技能列表扩展，允许用户添加自己的
 skill-name@owner/repo
 another-skill@owner/repo
 ```
-并手动删除 `~/.skill-hub/skill.list` 文件
+并手动**删除 `~/.skill-hub/skill.list` 文件**
 
-当使用 `skill search` 或其他命令时，系统会自动将自定义技能追加到主技能列表中，与官方技能一起搜索和管理。
+当使用 `skill search` 命令时，系统会自动将自定义技能追加到主技能列表中，与官方技能一起搜索和管理。
 
 ---
 
@@ -175,13 +175,11 @@ skill manage
 
 #### Agent Tab 列表格式
 
-每个技能会显示同步级别：
+每个技能会显示同步状态：
 
 ```
-(project)  python-tools
-(project)  python-tools -> python-tools@anthropic/python-tools
-(global)   git-workflow
-(global)   git-workflow -> git-workflow@anthropic/git-workflow
+(project)  pdf -> pdf@anthropics/skills
+(global)   skill-creator -> skill-creator@ComposioHQ/awesome-claude-skills
 ```
 
 ---
@@ -202,10 +200,10 @@ skill install [options] <target>
   -u, --update  强制更新已安装的技能
 
 示例:
-  skill install web-debugger@anthropic/tools
-  skill install -u web-debugger@anthropic/tools  # 强制更新
-  skill install anthropic/python-tools     # 安装整个仓库
-  skill install /path/skills.txt   # 文件每行是一个 skill@repo 或 repo
+  skill install pdf@anthropics/skills
+  skill install -u pdf@anthropics/skills  # 强制更新
+  skill install anthropics/skills     # 安装整个仓库
+  skill install /path/skills.txt   # 每行是一个 skill@repo 或 repo，方便团队协作
 ```
 
 ### update - 更新技能
@@ -214,8 +212,8 @@ skill install [options] <target>
 skill update <target>
 
 示例:
-  skill update web-debugger@anthropic/tools
-  skill update anthropic/python-tools
+  skill update pdf@anthropics/skills
+  skill update anthropics/skills
 ```
 
 ### uninstall - 卸载技能
@@ -224,8 +222,8 @@ skill update <target>
 skill uninstall <target>
 
 示例:
-  skill uninstall web-debugger@anthropic/tools
-  skill uninstall anthropic/python-tools
+  skill uninstall pdf@anthropics/skills
+  skill uninstall anthropics/skills
 ```
 
 ### list - 列出已安装技能
@@ -249,8 +247,8 @@ skill sync <agent_name> <target> [options]
   -f, --force            强制同步（覆盖已存在的技能）
 
 示例:
-  skill sync ClaudeCode web-debugger@anthropic/tools -p
-  skill sync Cursor python-tools@anthropic/python-tools -g -f
+  skill sync ClaudeCode pdf@anthropics/skills -p # 同步到 .cursor/skills
+  skill sync Cursor pdf@anthropics/skills -g -f # 同步到 ~/.cursor/skills
   skill sync Cursor /path/skills.txt    # 文件每行是一个 skill@repo 或 repo
 
 ```
@@ -283,8 +281,6 @@ owner/
 ```bash
 git clone https://github.com/youzaiAGI/agent-skills-hub.git
 cd agent-skills-hub
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -e .
 ```
 
