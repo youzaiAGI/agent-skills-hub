@@ -193,6 +193,7 @@ def _multi_tab_management_ui(stdscr, tabs):
         elif 32 <= key <= 126:  # ASCII字符范围
             current_state['search_text'] += chr(key)
             current_state['current_row'] = 0  # 重置选中项
+            current_state['current_page'] = 0  # 重置到第一页
             # 更新过滤列表
             if current_state['search_text']:
                 current_state['filtered_data'] = [item for item in tabs[current_tab]['data'] if current_state['search_text'].lower() in item.lower()]
@@ -202,6 +203,7 @@ def _multi_tab_management_ui(stdscr, tabs):
         elif key == curses.KEY_BACKSPACE or key == 127 or key == 8:
             current_state['search_text'] = current_state['search_text'][:-1]
             current_state['current_row'] = 0  # 重置选中项
+            current_state['current_page'] = 0  # 重置到第一页
             # 更新过滤列表
             if current_state['search_text']:
                 current_state['filtered_data'] = [item for item in tabs[current_tab]['data'] if current_state['search_text'].lower() in item.lower()]
@@ -248,6 +250,7 @@ def _multi_tab_management_ui(stdscr, tabs):
         elif key == curses.KEY_DC:  # Delete键
             current_state['search_text'] = ""
             current_state['current_row'] = 0
+            current_state['current_page'] = 0  # 重置到第一页
             # 重置过滤列表
             current_state['filtered_data'] = tabs[current_tab]['data'][:]
     
