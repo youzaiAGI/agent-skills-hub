@@ -2,10 +2,11 @@ from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
+from skill_hub import __version__
 
 setup(
     name="agent-skills-hub",
-    version="1.0.2",
+    version=__version__,
     author="youzaiAGI",
     author_email="youzaiagi@gmail.com",
     description="A package manager for Agent skills",

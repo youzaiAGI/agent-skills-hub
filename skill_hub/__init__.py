@@ -8,7 +8,7 @@ import argparse
 import sys
 import os
 from pathlib import Path
-
+__version__ = '1.0.3'
 
 def main():
     parser = argparse.ArgumentParser(description='Skill Hub - 技能包管理系统')
@@ -57,7 +57,7 @@ def main():
     
     # 处理版本号
     if args.version:
-        print("Agent Skills Hub v1.0.2")
+        print(f"Agent Skills Hub {__version__}")
         return
     
     # 根据子命令调用相应函数
