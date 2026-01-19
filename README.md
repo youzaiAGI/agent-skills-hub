@@ -84,7 +84,7 @@ skill --version
 ```bash
 skill search
 ```
-<img width="1456" height="1174" alt="image" src="https://github.com/user-attachments/assets/bcd52f3c-62f3-4ca3-b820-13645a5f005f" />
+<img width="1722" height="916" alt="image" src="https://github.com/user-attachments/assets/a58165cf-7713-4a73-ac6e-e18ce9a6efd6" />
 
 #### 功能说明
 
@@ -131,8 +131,7 @@ another-skill@owner/repo
 ```bash
 skill manage
 ```
-
-<img width="1358" height="1026" alt="image" src="https://github.com/user-attachments/assets/fc6482a8-053e-48b3-bd4e-7e1189c11635" />
+<img width="1722" height="916" alt="image" src="https://github.com/user-attachments/assets/ce97c652-22d8-4c62-9983-39224c0ac1cc" />
 
 #### 功能说明
 
