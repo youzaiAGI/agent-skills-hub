@@ -21,6 +21,8 @@ from skill_hub.commands.update import update_skill
 from skill_hub.commands.uninstall import uninstall_skill
 from skill_hub.commands.sync import sync_skill_single
 
+# 分页大小常量
+PAGESIZE = 20
 
 def manage_skills():
     """技能管理命令 - 多标签页界面"""
@@ -95,6 +97,7 @@ def _multi_tab_management_ui(stdscr, tabs):
     for tab in tabs:
         state = {
             'current_row': 0,
+            'current_page': 0,  # 当前页码
             'search_text': "",
             'filtered_data': tab['data'][:]
         }
@@ -133,26 +136,33 @@ def _multi_tab_management_ui(stdscr, tabs):
         current_data = current_state['filtered_data']
         current_search = current_state['search_text']
 
-        # 显示搜索框
+        # 计算当前页面的数据显示范围
+        start_idx = current_state['current_page'] * PAGESIZE
+        end_idx = min(start_idx + PAGESIZE, len(current_data))
+        
+        # 显示搜索框和页数信息
         try:
-            search_text = f"搜索: {current_search}_"
-            stdscr.addstr(1, 0, search_text[:width - 1])
+            total_pages = max(1, (len(current_data) + PAGESIZE - 1) // PAGESIZE)
+            search_and_page_text = f"搜索: {current_search}_  第{current_state['current_page'] + 1}/{total_pages}页"
+            stdscr.addstr(1, 0, search_and_page_text[:width - 1])
         except:
             stdscr.addstr(1, 0, f"搜索:_")
         
         # 显示列表内容，确保不超过屏幕高度
-        max_display_items = height - 4  # 留出标题、搜索框和底部说明的空间
-        for idx in range(min(len(current_data), max_display_items)):
-            item = current_data[idx]
-            prefix = "> " if idx == current_state['current_row'] else "  "
-            try:
-                if idx == current_state['current_row']:
-                    stdscr.addstr(idx + 3, 0, prefix + item, curses.A_REVERSE)
-                else:
-                    stdscr.addstr(idx + 3, 0, prefix + item)
-            except:
-                # 如果添加字符串失败（例如超出边界），则跳过
-                break
+        max_display_items = min(PAGESIZE, height - 4)  # 留出标题、搜索框和底部说明的空间
+        for idx in range(max_display_items):
+            data_idx = start_idx + idx
+            if data_idx < len(current_data):
+                item = current_data[data_idx]
+                prefix = "> " if data_idx == current_state['current_row'] else "  "
+                try:
+                    if data_idx == current_state['current_row']:
+                        stdscr.addstr(idx + 3, 0, prefix + item, curses.A_REVERSE)
+                    else:
+                        stdscr.addstr(idx + 3, 0, prefix + item)
+                except:
+                    # 如果添加字符串失败（例如超出边界），则跳过
+                    break
         
         stdscr.refresh()
         
@@ -200,8 +210,40 @@ def _multi_tab_management_ui(stdscr, tabs):
         # 处理方向键
         elif key == curses.KEY_UP:
             current_state['current_row'] = max(0, current_state['current_row'] - 1)
+            # 调整页面，确保选中项可见
+            current_page = current_state['current_row'] // PAGESIZE
+            current_state['current_page'] = current_page
         elif key == curses.KEY_DOWN:
             current_state['current_row'] = min(len(current_state['filtered_data']) - 1, current_state['current_row'] + 1)
+            # 调整页面，确保选中项可见
+            current_page = current_state['current_row'] // PAGESIZE
+            current_state['current_page'] = current_page
+        # 处理翻页键
+        elif key == curses.KEY_PPAGE:  # Page Up
+            # 向上翻页
+            if current_state['current_page'] > 0:
+                current_state['current_page'] -= 1
+                # 将选中项设置为新页面的第一个项目
+                current_state['current_row'] = current_state['current_page'] * PAGESIZE
+        elif key == curses.KEY_NPAGE:  # Page Down
+            # 向下翻页
+            total_pages = max(1, (len(current_state['filtered_data']) + PAGESIZE - 1) // PAGESIZE)
+            if current_state['current_page'] < total_pages - 1:
+                current_state['current_page'] += 1
+                # 将选中项设置为新页面的第一个项目
+                start_idx = current_state['current_page'] * PAGESIZE
+                current_state['current_row'] = min(start_idx, len(current_state['filtered_data']) - 1)
+        # 处理Home/End键
+        elif key == curses.KEY_HOME:
+            # 跳转到第一页
+            current_state['current_page'] = 0
+            current_state['current_row'] = 0
+        elif key == curses.KEY_END:
+            # 跳转到最后一页
+            total_pages = max(1, (len(current_state['filtered_data']) + PAGESIZE - 1) // PAGESIZE)
+            current_state['current_page'] = total_pages - 1
+            start_idx = current_state['current_page'] * PAGESIZE
+            current_state['current_row'] = min(start_idx, len(current_state['filtered_data']) - 1)
         # 处理其他控制键
         elif key == curses.KEY_DC:  # Delete键
             current_state['search_text'] = ""

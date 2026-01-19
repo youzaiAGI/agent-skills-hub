@@ -173,7 +173,7 @@ def _draw_main_screen(stdscr, tabs, current_tab, state):
     # 显示搜索框和页码
     search_display = f"搜索: {state['search_text']}_ "
     total_pages = (state['total_count'] + PAGE_SIZE - 1) // PAGE_SIZE if state['total_count'] > 0 else 1
-    page_info = f"第{state['page']}/{total_pages}页"
+    page_info = f" 第{state['page']}/{total_pages}页"
     full_line = search_display + page_info
     stdscr.addstr(1, 0, full_line)
 
