@@ -121,12 +121,12 @@ def _multi_tab_management_ui(stdscr, tabs):
             except:
                 break
 
-        # 显示说明文字
-        try:
-            if width > 25:
-                stdscr.addstr(0, max(0, width - 25), "(左右箭头切换, ESC退出)")
-        except:
-            pass
+        # # 显示说明文字
+        # try:
+        #     if width > 25:
+        #         stdscr.addstr(0, max(0, width - 25), "(左右切换)")
+        # except:
+        #     pass
 
         # 获取当前标签页的数据
         current_state = tab_states[current_tab]
