@@ -102,28 +102,43 @@ def _multi_tab_management_ui(stdscr, tabs):
     
     while True:
         stdscr.clear()
-        
+
         # 获取屏幕尺寸
         height, width = stdscr.getmaxyx()
-        
+
         # 显示标签页
         tab_titles = [tab['name'] for tab in tabs]
         current_x = 0
         for i, title in enumerate(tab_titles):
             tab_text = f"[{title}]" if i == current_tab else f" {title} "
-            stdscr.addstr(0, current_x, tab_text, curses.A_REVERSE if i == current_tab else 0)
-            current_x += len(tab_text) + 1  # +1 for spacing
-        
+            try:
+                if current_x < width - 1:
+                    safe_tab_text = tab_text[:width - current_x - 1] if len(tab_text) > width - current_x else tab_text
+                    stdscr.addstr(0, current_x, safe_tab_text, curses.A_REVERSE if i == current_tab else 0)
+                    current_x += len(safe_tab_text) + 1
+                else:
+                    break
+            except:
+                break
+
         # 显示说明文字
-        stdscr.addstr(0, width - 25, "(左右箭头切换, ESC退出)")
-        
+        try:
+            if width > 25:
+                stdscr.addstr(0, max(0, width - 25), "(左右箭头切换, ESC退出)")
+        except:
+            pass
+
         # 获取当前标签页的数据
         current_state = tab_states[current_tab]
         current_data = current_state['filtered_data']
         current_search = current_state['search_text']
-        
+
         # 显示搜索框
-        stdscr.addstr(1, 0, f"搜索: {current_search}_")
+        try:
+            search_text = f"搜索: {current_search}_"
+            stdscr.addstr(1, 0, search_text[:width - 1])
+        except:
+            stdscr.addstr(1, 0, f"搜索:_")
         
         # 显示列表内容，确保不超过屏幕高度
         max_display_items = height - 4  # 留出标题、搜索框和底部说明的空间
@@ -195,6 +210,7 @@ def _multi_tab_management_ui(stdscr, tabs):
             current_state['filtered_data'] = tabs[current_tab]['data'][:]
     
     return None  # 正常退出
+
 
 
 def _refresh_tabs_data():
