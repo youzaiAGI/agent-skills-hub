@@ -51,6 +51,47 @@ def add_custom_repo(repo_name):
     update_skill_files(skill_hub_dir / 'repo.sort')
 
 
+def rm_custom_repo(repo_name):
+    """删除自定义仓库"""
+
+    if not repo_name.startswith('https://github.com/') :
+        if '/' in repo_name and not repo_name.startswith('http'):
+        # 格式为 owner/repo
+            parts = repo_name.split('/')
+            if len(parts) != 2:
+                print(f"{repo_name} 无效的仓库地址格式")
+                return
+        else:
+            print(f"{repo_name} 无效的仓库地址")
+            return
+
+    # 如果是 URL 格式，转换为 owner/repo 格式存储
+    if repo_name.startswith('https://github.com/'):
+        parts = repo_name.split('/')
+        repo_name = f"{parts[3]}/{parts[4]}"
+
+    repo_file_path = skill_hub_dir / 'repo_custom.list'
+
+    if not repo_file_path.exists():
+        print(f"{repo_name} 不存在")
+        return
+
+    repos = []
+    with open(repo_file_path, 'r', encoding='utf-8') as f:
+        repos = [line.strip() for line in f.readlines()]
+    if not repo_name in repos:
+        print(f"{repo_name} 不存在")
+        return
+
+    repos.remove(repo_name)
+    repos = sorted(list(set(repos)))  # 去重并排序
+
+    with open(repo_file_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(repos))
+    print(f"{repo_name} 删除成功")
+
+    update_skill_files(skill_hub_dir / 'repo.sort')
+
 def update_skill_files(file_path):
     """下载技能列表和仓库排序文件到 ~/.skill-hub 目录"""
     skill_hub_dir.mkdir(exist_ok=True)
