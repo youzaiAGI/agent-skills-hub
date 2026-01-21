@@ -31,7 +31,7 @@ def main():
     uninstall_parser = subparsers.add_parser('uninstall', help='卸载skill')
     uninstall_parser.add_argument('target', nargs='?', help='要卸载的目标 (格式: skill@repo 或 repo)')
     
-    # list 命
+    # list 命令
     list_parser = subparsers.add_parser('list', help='查看已安装的skill')
     
 
@@ -50,6 +50,14 @@ def main():
     sync_parser.add_argument('-g', '--global', dest='global_level', action='store_true', help='同步到全局级别')
     sync_parser.add_argument('-f', '--force', action='store_true', help='强制同步')
     
+    # repo 命令
+    repo_parser = subparsers.add_parser('repo', help='管理自定义仓库')
+    repo_subparsers = repo_parser.add_subparsers(dest='subcommand', help='repo 子命令', metavar='{add,rm}')
+    repo_add_parser = repo_subparsers.add_parser('add', help='添加自定义仓库')
+    repo_add_parser.add_argument('repo_name', help='仓库名称或URL (格式: owner/repo 或 https://github.com/owner/repo)')
+    repo_rm_parser = repo_subparsers.add_parser('rm', help='删除自定义仓库')
+    repo_rm_parser.add_argument('repo_name', help='仓库名称 (格式: owner/repo)')
+
     args = parser.parse_args()
     
     # 如果没有参数，显示帮助
@@ -91,6 +99,12 @@ def main():
             global_level=args.global_level,
             force_sync=args.force
         )
+    elif args.command == 'repo':
+        if args.subcommand is None:  # 如果没有提供子命令，则显示帮助
+            repo_parser.print_help()
+        else:
+            from skill_hub.commands.repo import repo_command
+            repo_command(args.repo_name, args.subcommand)
     else:
         parser.print_help()
 
