@@ -48,8 +48,10 @@ def add_custom_repo(repo_name):
 
     print(f"{repo_name} 添加成功")
 
+    update_skill_files(skill_hub_dir / 'repo.sort')
 
-def download_skill_files(file_path):
+
+def update_skill_files(file_path):
     """下载技能列表和仓库排序文件到 ~/.skill-hub 目录"""
     skill_hub_dir.mkdir(exist_ok=True)
     
@@ -64,33 +66,37 @@ def download_skill_files(file_path):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        with open(file_path, 'wb') as f:
-            f.write(response.content)
+
+        custom_file = f"{filename.split('.')[0]}_custom.list"  
+        skill_custom_path = skill_hub_dir / custom_file
+        custom_skills = []
+        if skill_custom_path.exists():
+            with open(skill_custom_path, 'r', encoding='utf-8') as f:
+                custom_skills = [line.strip() for line in f.readlines() if line.strip()]
+
+        if custom_skills:
+            skills = custom_skills + response.text.split('\n')
+            with open(file_path, 'w') as f:
+                f.write('\n'.join(skills))
+        else:
+            with open(file_path, 'w') as f:
+                f.write(response.text)
+
         print(f"成功下载 {filename} 到 {file_path}")
     except Exception as e:
         print(f"下载 {filename} 时出错: {e}")
-
-def append_custom_skills():
-    skill_custom_path = skill_hub_dir / 'skill_custom.list'
-    if skill_custom_path.exists():
-        with open(skill_custom_path, 'r', encoding='utf-8') as f:
-            skills = ['\n'] + f.readlines()
-        with open(skill_hub_dir / 'skill.list', 'a', encoding='utf-8') as f:
-            f.writelines(skills)
 
 def _search(skill_file_path, search="", page=1, size=50):
     """搜索技能文件中的技能，返回 (结果列表, 总数)"""
     if not skill_file_path.exists():
         # 如果文件不存在，下载文件
-        download_skill_files(skill_file_path)
-        append_custom_skills()
+        update_skill_files(skill_file_path)
     else:
         # 检查文件修改时间，如果超过24小时则重新下载
         file_modified_time = skill_file_path.stat().st_mtime
         current_time = time.time()
         if current_time - file_modified_time > 24 * 60 * 60:  # 24小时 = 24 * 60 * 60 秒
-            download_skill_files(skill_file_path)
-            append_custom_skills()
+            update_skill_files(skill_file_path)     
     try:
         # 计算分页起始位置
         start_index = (page - 1) * size
@@ -130,4 +136,5 @@ def get_repos(search = "", page=1, size=50):
     return _search(skill_file_path, search, page, size)
 
 if __name__ == "__main__":  
-    add_custom_repo("https://github.com/kepano/obsidian-skills/tree/main/skills")
+    add_custom_repo("https://github.com/youzaiAGI/voderee55544")
+    # get_repos()
