@@ -40,7 +40,8 @@ Agent Skills Hub supports the following AI Agents:
 | Gemini | `.gemini/skills` | `~/.gemini/skills` |
 | Antigravity | `.agent/skills` | `~/.gemini/antigravity/skills` |
 | Codex | `.codex/skills` | `~/.codex/skills` |
-| OpenCode | `.opencode/skill` | `~/.config/opencode/skill` |
+| Trae | `.trae/skills` | `~/.trae/skills` |
+| OpenCode | `.opencode/skills` | `~/.config/opencode/skills` |
 | Amp | `.agents/skills` | `~/.config/agents/skills` |
 | Qwen | `.qwen/skills` | `~/.qwen/skills` |
 | Qoder | `.qoder/skills` | `~/.qoder/skills` |

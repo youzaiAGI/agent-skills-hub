@@ -26,6 +26,10 @@ config_data = {
     ".agent/skills",
     "~/.gemini/antigravity/skills"
   ],
+  "Trae":[
+    ".trae/skills",
+    "~/.trae/skills"
+  ],
   "Windsurf": [
     ".windsurf/skills",
     "~/.codeium/windsurf/skills"
