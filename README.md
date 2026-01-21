@@ -232,6 +232,20 @@ skill uninstall <target>
 skill list
 ```
 
+### search - 搜索技能
+
+```bash
+skill search [query]
+
+参数:
+  query        搜索关键词（可选）
+
+示例:
+  skill search                    # 打开交互式搜索界面
+  skill search python            # 直接搜索包含 'python' 的技能
+  skill search web               # 直接搜索包含 'web' 的技能
+```
+
 ### sync - 同步技能到 Agent
 
 ```bash

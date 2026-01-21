@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 搜索技能命令模块 - 多标签页界面，支持搜索skill和repo
 """
@@ -35,21 +36,29 @@ class OutputCapture:
         pass
 
 
-def search_skills():
-    """搜索技能命令 - 多标签页界面"""
-    try:
-        if not sys.stdout.isatty():
-            print("搜索命令需要在交互式终端中运行")
-            return
-        curses.wrapper(_search_ui)
-    except KeyboardInterrupt:
-        print("\n操作已取消")
-    except Exception as e:
-        if 'curses' in str(e) or 'ERR' in str(e):
-            print("搜索界面启动失败: 当前终端可能不支持 curses")
-            print("请尝试在支持 curses 的终端中运行")
-        else:
-            print(f"搜索界面启动失败: {e}")
+def search_skills(query=None):
+    """搜索技能命令 - 支持参数查询或交互界面"""
+    if query:  # 如果提供了查询参数，直接返回搜索结果
+        from skill_hub.utils.skill_mng import get_skills
+        results, total = get_skills(query, page=1, size=50)
+        for result in results:
+            print(result)
+        if not results:
+            print(f"未找到 '{query}' 相关的技能")
+    else:  # 没有参数，则打开交互界面
+        try:
+            if not sys.stdout.isatty():
+                print("搜索命令需要在交互式终端中运行")
+                return
+            curses.wrapper(_search_ui)
+        except KeyboardInterrupt:
+            print("\n操作已取消")
+        except Exception as e:
+            if 'curses' in str(e) or 'ERR' in str(e):
+                print("搜索界面启动失败: 当前终端可能不支持 curses")
+                print("请尝试在支持 curses 的终端中运行")
+            else:
+                print(f"搜索界面启动失败: {e}")
 
 
 def _search_ui(stdscr):

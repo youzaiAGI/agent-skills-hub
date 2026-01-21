@@ -217,6 +217,20 @@ Examples:
 skill list
 ```
 
+### search - Search skills
+
+```bash
+skill search [query]
+
+Parameters:
+  query        Search keyword (optional)
+
+Examples:
+  skill search                    # Open interactive search interface
+  skill search python            # Directly search skills containing 'python'
+  skill search web               # Directly search skills containing 'web'
+```
+
 ### sync - Sync skill to Agent
 
 ```bash

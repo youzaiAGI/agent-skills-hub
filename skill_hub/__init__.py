@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Skill Hub - 技能包管理系统
 命令行工具，用于管理AI助手的技能包
@@ -36,6 +37,7 @@ def main():
 
     # search 命令
     search_parser = subparsers.add_parser('search', help='搜索skill')
+    search_parser.add_argument('query', nargs='?', help='搜索关键词')
     
     # manage 命令
     manage_parser = subparsers.add_parser('manage', help='管理已安装的skills和agents')
@@ -76,7 +78,7 @@ def main():
 
     elif args.command == 'search':
         from skill_hub.commands.search import search_skills
-        search_skills()
+        search_skills(args.query)
     elif args.command == 'manage':
         from skill_hub.commands.manage import manage_skills
         manage_skills()
