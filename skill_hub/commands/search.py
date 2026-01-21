@@ -15,6 +15,7 @@ from skill_hub.utils.agent_cmd import (
     get_project_installed_agents,
     get_global_installed_agents
 )
+from skill_hub.utils.display import show_file_content,_display_wrapped_lines
 from skill_hub.commands.sync import sync_skill_single
 
 
@@ -103,6 +104,10 @@ def _search_ui(stdscr):
             current_tab = (current_tab + 1) % len(tabs)
             _load_tab_data(tabs[current_tab], tab_states[current_tab])
 
+        elif key == 9:  # 9 is the ASCII code for tab key
+            current_tab = (current_tab + 1) % len(tabs)
+            _load_tab_data(tabs[current_tab], tab_states[current_tab])
+
         # 处理回车键（进入详情页）
         elif key in [curses.KEY_ENTER, ord('\n'), ord('\r')]:
             current_state = tab_states[current_tab]
@@ -177,7 +182,7 @@ def _draw_main_screen(stdscr, tabs, current_tab, state):
         stdscr.addstr(0, current_x, tab_text, curses.A_REVERSE if i == current_tab else 0)
         current_x += len(tab_text) + 1
 
-    stdscr.addstr(0, width - 60, "(左右箭头切换tab, FN+上下/Page翻页, ESC退出)")
+    stdscr.addstr(0, width - 25, "(fn/Page翻页, ESC退出)")
 
     # 显示搜索框和页码
     search_display = f"搜索: {state['search_text']}_ "
@@ -299,7 +304,7 @@ def _show_options_menu(stdscr, title, options):
             else:
                 stdscr.addstr(idx + 2, 0, prefix + option)
 
-        stdscr.addstr(len(options) + 3, 0, "(上下箭头选择, 回车确认, ESC返回)")
+        stdscr.addstr(len(options) + 3, 0, "(回车确认, ESC返回)")
         stdscr.refresh()
 
         key = stdscr.getch()
@@ -357,93 +362,13 @@ def _view_skill_md_online(stdscr, skill_str):
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         content = response.text
-        _show_file_content(stdscr, f"SKILL.md - {skill_str}", content)
+        show_file_content(stdscr, f"SKILL.md - {skill_str}", content)
     except Exception as e:
         stdscr.clear()
         stdscr.addstr(0, 0, f"下载失败: {e}")
         stdscr.addstr(2, 0, "按任意键返回...")
         stdscr.refresh()
         stdscr.getch()
-
-
-def _wrap_line(line, width):
-    """将长行按宽度自动换行"""
-    # 处理制表符
-    line = line.replace('\t', '  ')
-    if width <= 1:
-        return [line] if line else []
-
-    result = []
-    current_line = line
-    while len(current_line) > width:
-        # 尝试在空格处换行
-        break_pos = current_line.rfind(' ', 0, width)
-        if break_pos > 0:
-            result.append(current_line[:break_pos])
-            current_line = current_line[break_pos + 1:]  # 跳过空格
-        else:
-            # 没有空格，强制在width处截断
-            result.append(current_line[:width])
-            current_line = current_line[width:]
-    if current_line:
-        result.append(current_line)
-    return result or []
-
-
-def _display_wrapped_lines(stdscr, lines, start_row, height, width):
-    """显示自动换行后的多行，返回实际使用的行数"""
-    display_row = start_row
-    for line in lines:
-        wrapped_lines = _wrap_line(line, width)
-        for wrapped_line in wrapped_lines:
-            if display_row >= height - 1:
-                break
-            # 确保不超过终端宽度，避免 curses 错误
-            safe_line = wrapped_line[:width]
-            try:
-                stdscr.addstr(display_row, 0, safe_line)
-                display_row += 1
-            except:
-                break
-    return display_row - start_row
-
-
-def _show_file_content(stdscr, title, content):
-    """显示文件内容，支持翻页和自动换行"""
-    lines = content.split('\n')
-    current_line = 0
-
-    while True:
-        stdscr.clear()
-        stdscr.addstr(0, 0, title)
-
-        height, width = stdscr.getmaxyx()
-        display_lines = height - 3
-        end_line = min(current_line + display_lines, len(lines))
-
-        display_row = 2
-        for i in range(current_line, end_line):
-            display_row += _display_wrapped_lines(stdscr, [lines[i]], display_row, height, width)
-
-        position_info = f"第 {current_line + 1}-{end_line} 行，共 {len(lines)} 行 (上下箭头翻页, ESC返回)"
-        stdscr.addstr(height - 1, 0, position_info[:width - 1])
-        stdscr.refresh()
-
-        key = stdscr.getch()
-
-        if key == 27:
-            break
-        elif key == curses.KEY_UP:
-            if current_line > 0:
-                current_line = max(0, current_line - 1)
-        elif key == curses.KEY_DOWN:
-            if current_line + display_lines < len(lines):
-                current_line += 1
-        elif key == curses.KEY_PPAGE:
-            current_line = max(0, current_line - display_lines)
-        elif key == curses.KEY_NPAGE:
-            current_line = min(len(lines) - display_lines, current_line + display_lines)
-
 
 def _install_skill_only(stdscr, skill_str):
     """仅安装skill到 ~/.skill-hub"""
@@ -953,7 +878,7 @@ def _show_multi_select_menu(stdscr, title, all_items, selected_items):
             else:
                 stdscr.addstr(display_row + 2, 0, display_text)
 
-        stdscr.addstr(min(max_display_items + 3, height - 1), 0, "(上下箭头移动, 空格键选择/取消, 回车确认, ESC返回)")
+        stdscr.addstr(min(max_display_items + 3, height - 1), 0, "(空格键选择/取消, 回车确认, ESC返回)")
         stdscr.refresh()
 
         key = stdscr.getch()

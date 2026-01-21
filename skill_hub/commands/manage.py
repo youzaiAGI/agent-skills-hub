@@ -16,6 +16,8 @@ from skill_hub.utils.agent_cmd import (
     get_project_installed_agents, 
     get_global_installed_agents
 )
+from skill_hub.utils.display import show_file_content
+
 from skill_hub.commands.list import get_skill_hub_skills, get_agent_skills
 from skill_hub.commands.update import update_skill
 from skill_hub.commands.uninstall import uninstall_skill
@@ -176,6 +178,8 @@ def _multi_tab_management_ui(stdscr, tabs):
         elif key == curses.KEY_LEFT:
             current_tab = (current_tab - 1) % len(tabs) if len(tabs) > 0 else 0
         elif key == curses.KEY_RIGHT:
+            current_tab = (current_tab + 1) % len(tabs) if len(tabs) > 0 else 0
+        elif key == 9:  # 9是ASCII码，表示Tab键
             current_tab = (current_tab + 1) % len(tabs) if len(tabs) > 0 else 0
         # 处理回车键（进入详情页）
         elif key in [curses.KEY_ENTER, ord('\n'), ord('\r')]:
@@ -358,7 +362,7 @@ def _show_options_menu(stdscr, title, options):
                 stdscr.addstr(idx + 2, 0, prefix + option)
         
         # 显示说明
-        stdscr.addstr(len(options) + 3, 0, "(上下箭头选择, 回车确认, ESC返回)")
+        stdscr.addstr(len(options) + 3, 0, "(回车确认, ESC返回)")
         
         stdscr.refresh()
         
@@ -439,54 +443,7 @@ def _view_skill_md(stdscr, skill_str):
         return
     
     # 显示内容（支持翻页）
-    _show_file_content(stdscr, f"SKILL.md - {skill_str}", content)
-
-
-def _show_file_content(stdscr, title, content):
-    """显示文件内容，支持翻页"""
-    lines = content.split('\n')
-    current_line = 0
-    
-    while True:
-        stdscr.clear()
-        
-        # 显示标题
-        stdscr.addstr(0, 0, title)
-        
-        # 获取屏幕尺寸
-        height, width = stdscr.getmaxyx()
-        
-        # 计算可显示的行数（预留标题和底部说明空间）
-        display_lines = height - 3
-        end_line = min(current_line + display_lines, len(lines))
-        
-        # 显示内容行
-        for i in range(current_line, end_line):
-            if i < len(lines):
-                # 截断过长的行以适应屏幕宽度
-                line_content = lines[i][:width-1]
-                stdscr.addstr(i - current_line + 2, 0, line_content)
-        
-        # 显示位置信息
-        position_info = f"第 {current_line+1}-{end_line} 行，共 {len(lines)} 行 (上下箭头翻页, ESC返回)"
-        stdscr.addstr(height - 1, 0, position_info[:width-1])
-        
-        stdscr.refresh()
-        
-        key = stdscr.getch()
-        
-        if key == 27:  # ESC键返回
-            break
-        elif key == curses.KEY_UP:
-            if current_line > 0:
-                current_line = max(0, current_line - 1)
-        elif key == curses.KEY_DOWN:
-            if current_line + display_lines < len(lines):
-                current_line += 1
-        elif key == curses.KEY_PPAGE:  # Page Up
-            current_line = max(0, current_line - display_lines)
-        elif key == curses.KEY_NPAGE:  # Page Down
-            current_line = min(len(lines) - display_lines, current_line + display_lines)
+    show_file_content(stdscr, f"SKILL.md - {skill_str}", content)
 
 
 def _update_skill(stdscr, skill_str):
@@ -677,7 +634,7 @@ def _show_multi_select_menu(stdscr, title, all_items, selected_items):
                 stdscr.addstr(idx + 2, 0, display_text)
         
         # 显示说明
-        stdscr.addstr(len(all_items) + 3, 0, "(上下箭头移动, 空格键选择/取消, 回车确认, ESC返回)")
+        stdscr.addstr(len(all_items) + 3, 0, "(空格键选择/取消, 回车确认, ESC返回)")
         
         stdscr.refresh()
         
@@ -736,7 +693,7 @@ def _view_agent_skill_md(stdscr, skill_name, agent_name, source_type):
         return
     
     # 显示内容（支持翻页）
-    _show_file_content(stdscr, f"SKILL.md - {skill_name} ({agent_name})", content)
+    show_file_content(stdscr, f"SKILL.md - {skill_name} ({agent_name})", content)
 
 
 def _remove_agent_skill(stdscr, skill_name, agent_name, source_type):
