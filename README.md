@@ -6,7 +6,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.1-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Version](https://img.shields.io/badge/version-1.1.0-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **一个用于管理 AI Agent 技能包的统一命令行工具**
 
@@ -25,6 +25,16 @@ Agent Skills Hub 是一个统一的技能包管理系统，让你能够轻松地
 - **在线搜索**：交互式搜索界面，轻松发现新技能
 - **灵活同步**：支持项目级和全局级技能同步
 - **广泛支持**：支持 Claude、Cursor、Windsurf、Gemini 等 13+ 种 AI Agent
+
+---
+
+## 版本更新日志 (Release Notes)
+
+### v1.1.0
+- **新增 Trae 支持**：现在支持 Trae AI Agent 的技能管理
+- **新增自定义仓库功能**：通过 `skill repo add` 和 `skill repo rm` 命令管理自定义技能仓库
+- **优化命令行体验**：改进了命令行界面和交互逻辑
+- **修复已知问题**：解决了一些同步和安装过程中的问题
 
 ---
 
@@ -71,7 +81,7 @@ pip install -e .
 
 ```bash
 skill --version
-# 输出: Agent Skills Hub v1.0.4
+# 输出: Agent Skills Hub v1.1.0
 ```
 
 ---
@@ -266,6 +276,22 @@ skill sync <agent_name> <target> [options]
   skill sync Cursor pdf@anthropics/skills -g -f # 同步到 ~/.cursor/skills
   skill sync Cursor /path/skills.txt    # 文件每行是一个 skill@repo 或 repo
 
+```
+
+### repo - 管理自定义仓库
+
+```bash
+skill repo {add,rm}
+
+子命令:
+  add        添加自定义仓库
+  rm         删除自定义仓库
+
+示例:
+  skill repo add youzaiAGI/agent-skills-hub     # 添加自定义仓库
+  skill repo add https://github.com/youzaiAGI/agent-skills-hub  # 也可以使用完整URL
+  skill repo rm youzaiAGI/agent-skills-hub      # 删除自定义仓库
+  skill repo                                    # 显示帮助信息
 ```
 
 ---

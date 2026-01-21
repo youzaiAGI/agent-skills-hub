@@ -6,7 +6,7 @@ English | **[简体中文](README.md)**
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.1-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Version](https://img.shields.io/badge/version-1.1.0-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **A unified CLI tool for managing AI Agent skill packages**
 
@@ -25,6 +25,16 @@ Agent Skills Hub is a unified skill package management system that allows you to
 - **Interactive Search**: Interactive search interface for discovering new skills
 - **Flexible Sync**: Support for both project-level and global skill synchronization
 - **Broad Support**: Supports 13+ AI Agents including Claude, Cursor, Windsurf, Gemini, and more
+
+---
+
+## Release Notes
+
+### v1.1.0
+- **Added Trae Support**: Now supports skill management for Trae AI Agent
+- **Added Custom Repository Feature**: Manage custom skill repositories with `skill repo add` and `skill repo rm` commands
+- **Improved Command Line Experience**: Enhanced command-line interface and interaction logic
+- **Fixed Known Issues**: Resolved some issues during sync and installation processes
 
 ---
 
@@ -71,7 +81,7 @@ pip install -e .
 
 ```bash
 skill --version
-# Output: Agent Skills Hub v1.0.3
+# Output: Agent Skills Hub v1.1.0
 ```
 
 ---
@@ -249,6 +259,22 @@ Options:
 Examples:
   skill sync ClaudeCode web-debugger@anthropic/tools -p
   skill sync Cursor python-tools@anthropic/python-tools -g -f
+```
+
+### repo - Manage custom repositories
+
+```bash
+skill repo {add,rm}
+
+Subcommands:
+  add        Add custom repository
+  rm         Remove custom repository
+
+Examples:
+  skill repo add youzaiAGI/agent-skills-hub     # Add custom repository
+  skill repo add https://github.com/youzaiAGI/agent-skills-hub  # Also support full URL
+  skill repo rm youzaiAGI/agent-skills-hub      # Remove custom repository
+  skill repo                                    # Show help information
 ```
 
 ---
