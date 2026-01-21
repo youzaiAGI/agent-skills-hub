@@ -136,5 +136,5 @@ def get_repos(search = "", page=1, size=50):
     return _search(skill_file_path, search, page, size)
 
 if __name__ == "__main__":  
-    add_custom_repo("https://github.com/youzaiAGI/voderee55544")
+    add_custom_repo("https://github.com/youzaiAGI/agent-skills-hub")
     # get_repos()
