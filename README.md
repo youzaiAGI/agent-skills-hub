@@ -90,11 +90,21 @@ skill --version
 
 ### 交互式搜索
 
+
+
 `skill search` 提供了一个直观的 TUI（终端用户界面）搜索功能，让你轻松发现和安装技能。
 
+无需安装
+```bash
+uvx --from agent-skills-hub skill search
+```
+
+已安装 agent-skills-hub 包
 ```bash
 skill search
 ```
+
+
 <img width="1722" height="916" alt="image" src="https://github.com/user-attachments/assets/a58165cf-7713-4a73-ac6e-e18ce9a6efd6" />
 
 #### 功能说明
@@ -125,6 +135,13 @@ skill search
 
 `skill manage` 提供图形化的技能管理界面，统一管理已安装的技能和 Agent。
 
+
+无需安装
+```bash
+uvx --from agent-skills-hub skill manage
+```
+
+已安装 agent-skills-hub 包
 ```bash
 skill manage
 ```
