@@ -50,7 +50,7 @@ def update_all_skills_from_repo(repo):
     try:
         repo_url = f"https://github.com/{repo}"
         result = subprocess.run(
-            ['git', 'clone', repo_url, str(temp_dir)],
+            ['git', 'clone', '--depth', '1', '--quiet', repo_url, str(temp_dir)],  # 添加 --depth 1 --quiet 选项
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -104,7 +104,7 @@ def update_specific_skill(skill_name, repo):
     try:
         repo_url = f"https://github.com/{repo}"
         result = subprocess.run(
-            ['git', 'clone', repo_url, str(temp_dir)],
+            ['git', 'clone', '--depth', '1', '--quiet', repo_url, str(temp_dir)],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

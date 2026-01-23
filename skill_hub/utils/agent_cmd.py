@@ -34,6 +34,18 @@ config_data = {
     ".windsurf/skills",
     "~/.codeium/windsurf/skills"
   ],
+  "GitHubCopilot":[
+    ".github/skills",
+    "~/.copilot/skills"
+  ],
+  "CodeBuddy":[
+    ".codebuddy/skills",
+    "~/.codebuddy/skills"
+  ],
+  "Factory":[
+    ".factory/skills",
+    "~/.factory/skills"
+  ],
   "Amp": [
     ".agents/skills",
     "~/.config/agents/skills"
@@ -57,7 +69,11 @@ config_data = {
   "Goose": [
     ".goose/skills",
     "~/.config/goose/skills"
-  ]
+  ],
+  "Kimi":[
+    ".kimi/skills",
+    "~/.kimi/skills"
+  ],
 }
 
 def get_agent_config(config_data):

@@ -105,7 +105,7 @@ def install_all_skills_from_repo(repo, force_update=False):
     try:
         repo_url = f"https://github.com/{repo}"
         result = subprocess.run(
-            ['git', 'clone', repo_url, str(temp_dir)],
+            ['git', 'clone', '--depth', '1', '--quiet', repo_url, str(temp_dir)],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -191,7 +191,7 @@ def install_specific_skill(skill_name, repo, force_update=False):
     try:
         repo_url = f"https://github.com/{repo}"
         result = subprocess.run(
-            ['git', 'clone', repo_url, str(temp_dir)],
+            ['git', 'clone', '--depth', '1', '--quiet', repo_url, str(temp_dir)],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
