@@ -6,7 +6,7 @@ English | **[简体中文](README.md)**
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1.0-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Version](https://img.shields.io/badge/version-1.5.0-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **A unified CLI tool for managing AI Agent skill packages**
 
@@ -24,11 +24,16 @@ Agent Skills Hub is a unified skill package management system that allows you to
 - **Unified Management**: Manage skill packages for multiple AI Agents with one tool
 - **Interactive Search**: Interactive search interface for discovering new skills
 - **Flexible Sync**: Support for both project-level and global skill synchronization
-- **Broad Support**: Supports 13+ AI Agents including Claude, Cursor, Windsurf, Gemini, and more
+- **Broad Support**: Supports Claude, Cursor, Windsurf, Gemini, Antigravity, Codex, Trae, OpenCode, GitHubCopilot, CodeBuddy, Factory, Amp, Qwen, Qoder, KiloCode, RooCode, Goose, Kimi and more 18+ AI Agents
 
 ---
 
 ## Release Notes
+
+### v1.5.0
+- **Added Cross-Project Skill Management**: Support export/import skill lists, enabling batch management experience similar to `pip install -r requirements.txt`
+- **Curated Popular Skill Repositories**: Curated 240 skills from 40 popular GitHub repositories, covering programming, writing, data analysis and other domains
+- **Added Support for More Agents**: Now supports Claude, Cursor, Windsurf, Gemini, Antigravity, Codex, Trae, OpenCode, GitHubCopilot, CodeBuddy, Factory, Amp, Qwen, Qoder, KiloCode, RooCode, Goose, Kimi and more 18+ AI Agents
 
 ### v1.1.0
 - **Added Trae Support**: Now supports skill management for Trae AI Agent
@@ -45,19 +50,23 @@ Agent Skills Hub supports the following AI Agents:
 | Agent | Project Path | Global Path |
 |-------|--------------|-------------|
 | ClaudeCode | `.claude/skills` | `~/.claude/skills` |
-| Cursor | `.cursor/skills` | `~/.cursor/skills` |
-| Windsurf | `.windsurf/skills` | `~/.codeium/windsurf/skills` |
 | Gemini | `.gemini/skills` | `~/.gemini/skills` |
-| Antigravity | `.agent/skills` | `~/.gemini/antigravity/skills` |
 | Codex | `.codex/skills` | `~/.codex/skills` |
+| OpenCode | `.opencode/skill` | `~/.config/opencode/skill` |
+| Cursor | `.cursor/skills` | `~/.cursor/skills` |
+| Antigravity | `.agent/skills` | `~/.gemini/antigravity/skills` |
 | Trae | `.trae/skills` | `~/.trae/skills` |
-| OpenCode | `.opencode/skills` | `~/.config/opencode/skills` |
+| Windsurf | `.windsurf/skills` | `~/.codeium/windsurf/skills` |
+| GitHubCopilot | `.github/skills` | `~/.copilot/skills` |
+| CodeBuddy | `.codebuddy/skills` | `~/.codebuddy/skills` |
+| Factory | `.factory/skills` | `~/.factory/skills` |
 | Amp | `.agents/skills` | `~/.config/agents/skills` |
 | Qwen | `.qwen/skills` | `~/.qwen/skills` |
 | Qoder | `.qoder/skills` | `~/.qoder/skills` |
 | KiloCode | `.kilocode/skills` | `~/.kilocode/skills` |
 | RooCode | `.roo/skills` | `~/.roo/skills` |
 | Goose | `.goose/skills` | `~/.config/goose/skills` |
+| Kimi | `.kimi/skills` | `~/.kimi/skills` |
 
 ---
 
@@ -81,7 +90,7 @@ pip install -e .
 
 ```bash
 skill --version
-# Output: Agent Skills Hub v1.1.0
+# Output: Agent Skills Hub v1.5.0
 ```
 
 ---
@@ -179,6 +188,62 @@ Each skill displays its sync level:
 (global)   git-workflow -> git-workflow@anthropic/git-workflow
 ```
 
+### Cross-Project Skill Management
+
+v1.5.0 introduces cross-project skill management, allowing you to manage AI Agent skills just like `pip install -r requirements.txt`!
+
+#### Export Current Project Skill List
+
+```bash
+skill list > skills.txt
+```
+
+This generates a list file containing all installed skills, formatted as follows:
+
+```
+skill-name@repo-owner/repo-name
+another-skill@repo-owner/repo-name
+...
+```
+
+#### Batch Install From Skill List
+
+```bash
+skill install skills.txt
+```
+
+This installs all skills listed in the file, perfect for team collaboration and project migration.
+
+#### Batch Sync To Specific Agent
+
+```bash
+skill sync ClaudeCode skills.txt -p
+```
+
+This synchronizes all skills in the list to the project-level directory of the specified Agent (e.g., ClaudeCode).
+
+#### Complete Workflow Example
+
+1. Export skills in project A:
+   ```bash
+   skill list > skills.txt
+   ```
+
+2. Copy skills.txt to project B
+
+3. Install skills in project B:
+   ```bash
+   skill install skills.txt
+   ```
+
+4. Sync to specified Agent:
+   ```bash
+   skill sync ClaudeCode skills.txt -p  # Sync to project level
+   skill sync ClaudeCode skills.txt -g  # Sync to global level
+   ```
+
+This feature makes sharing skill configurations among team members extremely simple, just like Python's requirements.txt!
+
 ---
 
 ## Command Line Tools
@@ -191,7 +256,7 @@ In addition to the interactive interface, Agent Skills Hub provides a complete s
 skill install [options] <target>
 
 Parameters:
-  target        Target to install (format: skill@repo or repo)
+  target        Target to install (format: skill@repo or repo or txt file path)
 
 Options:
   -u, --update  Force update installed skills
@@ -200,7 +265,10 @@ Examples:
   skill install web-debugger@anthropic/tools
   skill install -u web-debugger@anthropic/tools  # Force update
   skill install anthropic/python-tools            # Install entire repo
+  skill install /path/skills.txt   # Each line is a skill@repo or repo, convenient for team collaboration
 ```
+
+> **Tip**: You can use `skill list > skills.txt` to generate a skill list file, then use `skill install skills.txt` to install skills in batch, just as convenient as `pip install -r requirements.txt` in Python!
 
 ### update - Update skill
 
@@ -249,7 +317,7 @@ skill sync <agent_name> <target> [options]
 
 Parameters:
   agent_name    Agent name (e.g., ClaudeCode, Cursor, etc.)
-  target        Target to sync (format: skill@repo or repo)
+  target        Target to sync (format: skill@repo or repo or file)
 
 Options:
   -p, --project          Sync to project level
@@ -259,7 +327,10 @@ Options:
 Examples:
   skill sync ClaudeCode web-debugger@anthropic/tools -p
   skill sync Cursor python-tools@anthropic/python-tools -g -f
+  skill sync Cursor /path/skills.txt    # Each line is a skill@repo or repo
 ```
+
+> **Tip**: Combined with `skill list > skills.txt`, you can achieve cross-project skill synchronization, batching skills just like `pip install -r requirements.txt`!
 
 ### repo - Manage custom repositories
 

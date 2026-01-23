@@ -6,7 +6,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1.0-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Version](https://img.shields.io/badge/version-1.5.0-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **一个用于管理 AI Agent 技能包的统一命令行工具**
 
@@ -24,17 +24,24 @@ Agent Skills Hub 是一个统一的技能包管理系统，让你能够轻松地
 - **统一管理**：一个工具管理多个 AI Agent 的技能包
 - **在线搜索**：交互式搜索界面，轻松发现新技能
 - **灵活同步**：支持项目级和全局级技能同步
-- **广泛支持**：支持 Claude、Cursor、Windsurf、Gemini 等 13+ 种 AI Agent
+- **广泛支持**：支持 Claude、Cursor、Windsurf、Gemini、Antigravity、Codex、Trae、OpenCode、GitHubCopilot、CodeBuddy、Factory、Amp、Qwen、Qoder、KiloCode、RooCode、Goose、Kimi 等 18+ 种 AI Agent
 
 ---
 
 ## 版本更新日志 (Release Notes)
 
+### v1.5.0
+- **新增跨项目skill管理**：支持导出/导入skill清单，实现类似 `pip install -r requirements.txt` 的批量管理体验
+- **收录主流技能仓库**：收录了40个主流GitHub仓库的240个skill，涵盖编程、写作、数据分析等多个领域
+- **新增 Agent 支持**：现在支持 Claude、Cursor、Windsurf、Gemini、Antigravity、Codex、Trae、OpenCode、GitHubCopilot、CodeBuddy、Factory、Amp、Qwen、Qoder、KiloCode、RooCode、Goose、Kimi 等 18+ 种 AI Agent
+
 ### v1.1.0
+
 - **新增 Trae 支持**：现在支持 Trae AI Agent 的技能管理
 - **新增自定义仓库功能**：通过 `skill repo add` 和 `skill repo rm` 命令管理自定义技能仓库
 - **优化命令行体验**：改进了命令行界面和交互逻辑
 - **修复已知问题**：解决了一些同步和安装过程中的问题
+
 
 ---
 
@@ -45,19 +52,23 @@ Agent Skills Hub 支持以下 AI Agent：
 | Agent | 项目路径 | 全局路径 |
 |-------|----------|----------|
 | ClaudeCode | `.claude/skills` | `~/.claude/skills` |
-| Cursor | `.cursor/skills` | `~/.cursor/skills` |
-| Windsurf | `.windsurf/skills` | `~/.codeium/windsurf/skills` |
 | Gemini | `.gemini/skills` | `~/.gemini/skills` |
-| Antigravity | `.agent/skills` | `~/.gemini/antigravity/skills` |
 | Codex | `.codex/skills` | `~/.codex/skills` |
+| OpenCode | `.opencode/skill` | `~/.config/opencode/skill` |
+| Cursor | `.cursor/skills` | `~/.cursor/skills` |
+| Antigravity | `.agent/skills` | `~/.gemini/antigravity/skills` |
 | Trae | `.trae/skills` | `~/.trae/skills` |
-| OpenCode | `.opencode/skills` | `~/.config/opencode/skills` |
+| Windsurf | `.windsurf/skills` | `~/.codeium/windsurf/skills` |
+| GitHubCopilot | `.github/skills` | `~/.copilot/skills` |
+| CodeBuddy | `.codebuddy/skills` | `~/.codebuddy/skills` |
+| Factory | `.factory/skills` | `~/.factory/skills` |
 | Amp | `.agents/skills` | `~/.config/agents/skills` |
 | Qwen | `.qwen/skills` | `~/.qwen/skills` |
 | Qoder | `.qoder/skills` | `~/.qoder/skills` |
 | KiloCode | `.kilocode/skills` | `~/.kilocode/skills` |
 | RooCode | `.roo/skills` | `~/.roo/skills` |
 | Goose | `.goose/skills` | `~/.config/goose/skills` |
+| Kimi | `.kimi/skills` | `~/.kimi/skills` |
 
 ---
 
@@ -81,7 +92,7 @@ pip install -e .
 
 ```bash
 skill --version
-# 输出: Agent Skills Hub v1.1.0
+# 输出: Agent Skills Hub v1.5.0
 ```
 
 ---
@@ -196,6 +207,62 @@ skill manage
 (global)   skill-creator -> skill-creator@ComposioHQ/awesome-claude-skills
 ```
 
+### 跨项目 Skill 管理
+
+v1.5.0 新增了跨项目skill管理功能，让你可以像 `pip install -r requirements.txt` 一样管理AI Agent技能！
+
+#### 导出当前项目技能清单
+
+```bash
+skill list > skills.txt
+```
+
+这会生成一个包含所有已安装技能的清单文件，格式如下：
+
+```
+skill-name@repo-owner/repo-name
+another-skill@repo-owner/repo-name
+...
+```
+
+#### 批量安装技能清单
+
+```bash
+skill install skills.txt
+```
+
+这会根据清单文件批量安装所有技能，非常适合团队协作和项目迁移。
+
+#### 批量同步到特定Agent
+
+```bash
+skill sync ClaudeCode skills.txt -p
+```
+
+这会将清单中的所有技能同步到指定的Agent（例如ClaudeCode）的项目级别目录中。
+
+#### 完整工作流程示例
+
+1. 在项目A中导出技能清单：
+   ```bash
+   skill list > skills.txt
+   ```
+
+2. 将skills.txt复制到项目B
+
+3. 在项目B中安装技能：
+   ```bash
+   skill install skills.txt
+   ```
+
+4. 同步到指定Agent：
+   ```bash
+   skill sync ClaudeCode skills.txt -p  # 同步到项目级别
+   skill sync ClaudeCode skills.txt -g  # 同步到全局级别
+   ```
+
+这个功能让团队成员之间共享技能配置变得极其简单，就像Python项目中的requirements.txt一样方便！
+
 ---
 
 ## 命令行工具
@@ -219,6 +286,8 @@ skill install [options] <target>
   skill install anthropics/skills     # 安装整个仓库
   skill install /path/skills.txt   # 每行是一个 skill@repo 或 repo，方便团队协作
 ```
+
+> **提示**: 你可以使用 `skill list > skills.txt` 生成技能清单文件，然后使用 `skill install skills.txt` 批量安装技能，就像Python中的 `pip install -r requirements.txt` 一样方便！
 
 ### update - 更新技能
 
@@ -280,6 +349,8 @@ skill sync <agent_name> <target> [options]
   skill sync Cursor /path/skills.txt    # 文件每行是一个 skill@repo 或 repo
 
 ```
+
+> **提示**: 结合 `skill list > skills.txt` 可以实现跨项目技能同步，就像 `pip install -r requirements.txt` 一样批量同步技能！
 
 ### repo - 管理自定义仓库
 
