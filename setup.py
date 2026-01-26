@@ -27,6 +27,7 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "requests>=2.25.1",
+        "windows-curses>=2.3.0; sys_platform == 'win32'",
     ],
     entry_points={
         "console_scripts": [
