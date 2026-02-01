@@ -7,7 +7,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.5.1-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Version](https://img.shields.io/badge/version-1.6.10-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **AI Agent 技能包统一管理工具**
@@ -33,6 +33,10 @@ Agent Skills Hub 是一个统一的技能包管理系统，让你可以轻松地
 ---
 
 ## 更新日志
+
+### v1.6.10
+- **新增 OpenClaw 支持**：完整支持 OpenClaw AI Agent 的技能管理
+- **版本升级**：基础版本编号调整至 1.6.x
 
 ### v1.5.1
 - **新增 Windows 支持**：完全兼容 Windows 系统，支持 Windows 终端和路径处理
@@ -114,7 +118,7 @@ pip install -e .
 
 ```bash
 skill --version
-# 输出: Agent Skills Hub v1.5.1
+# 输出: Agent Skills Hub v1.6.10
 ```
 
 ---

@@ -7,7 +7,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.5.1-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Version](https://img.shields.io/badge/version-1.6.10-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **A unified CLI tool for managing AI Agent skill packages**
@@ -33,6 +33,10 @@ Agent Skills Hub is a unified skill package management system that allows you to
 ---
 
 ## Release Notes
+
+### v1.6.10
+- **Added OpenClaw Support**: Full support for OpenClaw AI Agent skill management
+- **Version Upgrade**: Base version numbering adjusted to 1.6.x
 
 ### v1.5.1
 - **Windows Support**: Full compatibility with Windows, including Windows terminal and path handling
@@ -114,7 +118,7 @@ pip install -e .
 
 ```bash
 skill --version
-# Output: Agent Skills Hub v1.5.1
+# Output: Agent Skills Hub v1.6.10
 ```
 
 ---
