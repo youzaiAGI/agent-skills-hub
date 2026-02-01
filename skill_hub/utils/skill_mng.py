@@ -3,9 +3,14 @@ skills_url = 'https://skill-hub.oss-cn-shanghai.aliyuncs.com/skill.list'
 repos_url = 'https://skill-hub.oss-cn-shanghai.aliyuncs.com/repo.sort'
 
 import os
+import sys
 import requests
 from pathlib import Path
 import time
+
+# Reconfigure stdout to handle UTF-8 on Windows
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 skill_hub_dir = Path.home() / '.skill-hub'
 

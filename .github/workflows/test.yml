@@ -25,18 +25,18 @@ jobs:
     - name: Test basic import
       shell: bash
       run: |
-        skill --version
+        python -m skill_hub --version
 
     - name: Test search command
       shell: bash
       run: |
-        skill search python | head -5
-        
+        python -m skill_hub search python | head -5
+
     - name: Test install command
       shell: bash
       run: |
-        skill install biopython@davila7/claude-code-templates
+        python -m skill_hub install biopython@davila7/claude-code-templates
     - name: Test list command
       shell: bash
       run: |
-        skill list | head -5
+        python -m skill_hub list | head -5
