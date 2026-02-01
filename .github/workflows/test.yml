@@ -21,7 +21,7 @@ jobs:
     - name: Test pip install
       shell: bash
       run: |
-        pip install .
+        pip install  -e .
 
     - name: Test basic import
       shell: bash
