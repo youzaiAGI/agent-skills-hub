@@ -1,0 +1,38 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install from PyPI
+      run: |
+        pip install agent-skills-hub
+
+    - name: Test basic import
+      shell: bash
+      run: |
+        python -m skill_hub --version
+
+    - name: Test search command
+      shell: bash
+      run: |
+        python -m skill_hub search python | head -5
+
+    - name: Test list command
+      shell: bash
+      run: |
+        python -m skill_hub list | head -5
