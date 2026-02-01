@@ -144,7 +144,7 @@ def install_all_skills_from_repo(repo, force_update=False):
                         print(f"技能 {skill_name}@{repo} 已存在")
     except subprocess.CalledProcessError as e:
         print(f"无法克隆仓库 {repo}: {e}")
-        print(f"错误输出: {e.stderr.decode() if hasattr(e, 'stderr') else 'N/A'}")
+        print(f"错误输出: {e.stderr.decode('utf-8', errors='replace') if hasattr(e, 'stderr') else 'N/A'}")
     except subprocess.TimeoutExpired:
         print(f"克隆仓库 {repo} 超时（60秒）")
     except Exception as e:
@@ -234,7 +234,7 @@ def install_specific_skill(skill_name, repo, force_update=False):
                     skill_dir.rmdir()
     except subprocess.CalledProcessError as e:
         print(f"无法克隆仓库 {repo}: {e}")
-        print(f"错误输出: {e.stderr.decode() if hasattr(e, 'stderr') else 'N/A'}")
+        print(f"错误输出: {e.stderr.decode('utf-8', errors='replace') if hasattr(e, 'stderr') else 'N/A'}")
     except subprocess.TimeoutExpired:
         print(f"克隆仓库 {repo} 超时（60秒）")
     except Exception as e:

@@ -6,7 +6,6 @@ import os
 import requests
 from pathlib import Path
 import time
-import subprocess
 
 skill_hub_dir = Path.home() / '.skill-hub'
 
@@ -137,24 +136,27 @@ def _search(skill_file_path, search="", page=1, size=50):
         file_modified_time = skill_file_path.stat().st_mtime
         current_time = time.time()
         if current_time - file_modified_time > 24 * 60 * 60:  # 24小时 = 24 * 60 * 60 秒
-            update_skill_files(skill_file_path)     
+            update_skill_files(skill_file_path)
     try:
+        # 读取所有行
+        with open(skill_file_path, 'r', encoding='utf-8') as f:
+            all_lines = [line.strip() for line in f.readlines() if line.strip()]
+
+        # 过滤空行
+        all_lines = [line for line in all_lines if line.strip()]
+
+        if search:
+            # 使用 Python 内置字符串搜索（跨平台兼容，不依赖 grep）
+            search_lower = search.lower()
+            all_matching_lines = [line for line in all_lines if search_lower in line.lower()]
+        else:
+            all_matching_lines = all_lines
+
+        total_count = len(all_matching_lines)
+
         # 计算分页起始位置
         start_index = (page - 1) * size
         end_index = start_index + size
-        if search:
-            # 使用grep搜索包含关键词的行
-            result = subprocess.run(['grep', '-i', search, str(skill_file_path)],
-                                  capture_output=True, text=True)
-            all_matching_lines = result.stdout.strip().split('\n') if result.stdout else []
-            # 过滤空行
-            all_matching_lines = [line for line in all_matching_lines if line.strip()]
-        else:
-            # 读取所有行
-            with open(skill_file_path, 'r', encoding='utf-8') as f:
-                all_matching_lines = [line.strip() for line in f.readlines() if line.strip()]
-
-        total_count = len(all_matching_lines)
 
         # 根据分页参数选择对应的数据
         selected_lines = all_matching_lines[start_index:end_index]

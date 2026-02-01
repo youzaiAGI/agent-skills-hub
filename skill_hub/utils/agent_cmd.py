@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 
 config_data = {
   "ClaudeCode": [
@@ -87,12 +88,16 @@ def get_agent_config(config_data):
         full_project_skill_path = os.path.join(os.getcwd(), value[0])
         # 检查用户目录路径是否存在 (将 ~ 替换为实际的用户主目录)
         full_user_skill_path = os.path.expanduser(value[1])
-        
+
+        # 使用 Path 来处理跨平台的路径分隔符问题
+        project_parent = Path(full_project_skill_path).parent
+        global_parent = Path(full_user_skill_path).parent
+
         agent_path_config[key] = {
             "project_path": full_project_skill_path,
-            "project_exists": os.path.exists(full_project_skill_path.rsplit('/', 1)[0]),
-            "global_path": full_user_skill_path ,
-            "global_exists": os.path.exists(full_user_skill_path.rsplit('/', 1)[0])
+            "project_exists": project_parent.exists(),
+            "global_path": full_user_skill_path,
+            "global_exists": global_parent.exists()
         }
 
     return agent_path_config
@@ -103,7 +108,7 @@ def get_installed_agents():
     for ide, config in get_agent_config(config_data=config_data).items():
         if config["project_exists"] or config["global_exists"]:
             installed_ide.append(ide)
-    
+
     return installed_ide
 
 def get_project_installed_agents():

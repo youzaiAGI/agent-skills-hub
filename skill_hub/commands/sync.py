@@ -3,6 +3,7 @@
 """
 
 import os
+import sys
 import shutil
 from pathlib import Path
 import argparse
@@ -16,16 +17,16 @@ def sync_skill_from_file(file_path, agent_name, project_level=False, global_leve
     if not file_path.exists():
         print(f"文件不存在: {file_path}")
         return
-    
+
     with open(file_path, 'r', encoding='utf-8') as f:
         targets = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-    
+
     if not targets:
         print(f"文件 {file_path} 中没有找到有效的同步目标")
         return
-    
+
     print(f"从文件 {file_path} 读取到 {len(targets)} 个同步目标")
-    
+
     for target in targets:
         print(f"\n正在处理: {target}")
         sync_skill_single(
@@ -37,11 +38,37 @@ def sync_skill_from_file(file_path, agent_name, project_level=False, global_leve
         )
 
 
+def _create_link_or_copy(src_path, dest_path):
+    """
+    创建软链接，如果失败则复制目录（兼容 Windows）
+    在 Windows 上，创建符号链接需要管理员权限
+    """
+    try:
+        dest_path.symlink_to(src_path.resolve())
+        print(f"已创建软链接: {dest_path} -> {src_path.resolve()}\n")
+        return True
+    except OSError as e:
+        # Windows 上创建符号链接需要管理员权限，改用目录复制
+        if sys.platform == 'win32':
+            print(f"软链接创建失败（可能需要管理员权限）: {e}")
+            print(f"改用复制目录方式...")
+            try:
+                shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
+                print(f"已复制目录: {dest_path} <- {src_path}\n")
+                return True
+            except Exception as copy_error:
+                print(f"复制目录失败: {copy_error}")
+                return False
+        else:
+            print(f"创建软链接失败: {e}")
+            return False
+
+
 def sync_skill_single(agent_name, target, project_level=False, global_level=False, force_sync=False):
     """同步单个技能或仓库"""
     skill_name = None
     repo = None
-    
+
     if '@' in target:
         # 格式为 skill@repo
         skill_name, repo = target.split('@', 1)
@@ -54,7 +81,7 @@ def sync_skill_single(agent_name, target, project_level=False, global_level=Fals
     if len(repo_parts) != 2:
         print(f"无效的仓库格式: {repo}，应为 owner/repo_name 格式")
         return
-    
+
     owner, repo_name = repo_parts
 
     # 获取 agent 配置
@@ -105,9 +132,11 @@ def sync_skill_single(agent_name, target, project_level=False, global_level=Fals
                 if target_path.is_symlink():
                     target_path.unlink()
                     print(f"已删除现有软链接: {target_path}")
-                elif target_path.is_dir():
-                    shutil.rmtree(target_path)
-                    print(f"已删除现有目录: {target_path}")
+                elif target_path.is_dir() or target_path.is_file():
+                    # Windows 上目录可能不是软链接，需要检查并删除
+                    if target_path.is_dir():
+                        shutil.rmtree(target_path)
+                        print(f"已删除现有目录: {target_path}")
             else:
                 # 非强制同步：如果目标是目录且包含 SKILL.md 文件，则不进行同步
                 if target_path.is_dir():
@@ -119,20 +148,15 @@ def sync_skill_single(agent_name, target, project_level=False, global_level=Fals
         # 创建目标目录（如果不存在）
         target_base_path.mkdir(parents=True, exist_ok=True)
 
-        # 创建软链接
-        try:
-            # 如果目标已存在（非强制模式下），先删除
-            if target_path.exists():
-                if target_path.is_symlink():
-                    target_path.unlink()
-                elif target_path.is_dir():
-                    shutil.rmtree(target_path)
-            
-            # 创建软链接
-            target_path.symlink_to(source_path.resolve())
-            print(f"已创建软链接: {target_path} -> {source_path.resolve()}\n")
-        except OSError as e:
-            print(f"创建软链接失败: {e}")
+        # 如果目标已存在（非强制模式下），先删除
+        if target_path.exists():
+            if target_path.is_symlink():
+                target_path.unlink()
+            elif target_path.is_dir():
+                shutil.rmtree(target_path)
+
+        # 创建软链接或复制目录
+        _create_link_or_copy(source_path, target_path)
     else:
         # 同步整个仓库的所有技能
         # 遍历仓库目录中的所有子目录（这些应该是技能目录）
@@ -143,7 +167,7 @@ def sync_skill_single(agent_name, target, project_level=False, global_level=Fals
                 if skill_md_path.exists():
                     skill_name = item.name
                     source_path = item  # 源路径就是这个子目录
-                    
+
                     # 目标路径：agent 对应的技能目录下的技能名
                     target_path = target_base_path / skill_name
 
@@ -168,20 +192,15 @@ def sync_skill_single(agent_name, target, project_level=False, global_level=Fals
                     # 创建目标目录（如果不存在）
                     target_base_path.mkdir(parents=True, exist_ok=True)
 
-                    # 创建软链接
-                    try:
-                        # 如果目标已存在（非强制模式下），先删除
-                        if target_path.exists():
-                            if target_path.is_symlink():
-                                target_path.unlink()
-                            elif target_path.is_dir():
-                                shutil.rmtree(target_path)
-                        
-                        # 创建软链接
-                        target_path.symlink_to(source_path.resolve())
-                        print(f"已创建软链接: {target_path} -> {source_path.resolve()}\n")
-                    except OSError as e:
-                        print(f"创建软链接失败: {e}")
+                    # 如果目标已存在（非强制模式下），先删除
+                    if target_path.exists():
+                        if target_path.is_symlink():
+                            target_path.unlink()
+                        elif target_path.is_dir():
+                            shutil.rmtree(target_path)
+
+                    # 创建软链接或复制目录
+                    _create_link_or_copy(source_path, target_path)
 
 
 def sync_skill(agent_name, target, project_level=False, global_level=False, force_sync=False):
@@ -204,7 +223,7 @@ def sync_skill(agent_name, target, project_level=False, global_level=False, forc
         # 如果target是文件，则从文件读取同步目标
         sync_skill_from_file(target_path, agent_name, project_level, global_level, force_sync)
         return
-    
+
     sync_skill_single(agent_name, target, project_level, global_level, force_sync)
 
 
@@ -223,7 +242,7 @@ def find_conflicting_skills_in_projects(agent_name, skill_names):
         skill_md_path = skill_path / 'SKILL.md'
         if skill_path.exists() and skill_path.is_dir() and skill_md_path.exists():
             conflicting_paths.append(str(skill_path))
-    
+
     return conflicting_paths
 
 def find_conflicting_skills_in_global(agent_name, skill_names):
@@ -240,5 +259,5 @@ def find_conflicting_skills_in_global(agent_name, skill_names):
         skill_md_path = skill_path / 'SKILL.md'
         if skill_path.exists() and skill_path.is_dir() and skill_md_path.exists():
             conflicting_paths.append(str(skill_path))
-    
+
     return conflicting_paths

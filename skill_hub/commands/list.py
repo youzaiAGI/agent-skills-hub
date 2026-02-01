@@ -170,8 +170,9 @@ def get_skill_repo_from_path(skill_path):
     # 确保路径在 ~/.skill-hub 目录下
     try:
         relative_path = skill_path.relative_to(skill_hub_dir)
-        parts = str(relative_path).split('/')
-        if len(parts) >= 3:  # owner/repo/skill 或 owner/repo 形式
+        # 使用 Path.parts 获取路径组件，跨平台兼容
+        parts = list(relative_path.parts)
+        if len(parts) >= 2:  # owner/repo/skill 或 owner/repo 形式
             owner = parts[0]
             repo = parts[1]
             if len(parts) >= 3 and parts[2] != 'SKILL.md':  # 包含具体技能目录
