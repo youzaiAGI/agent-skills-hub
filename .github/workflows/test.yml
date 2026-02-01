@@ -18,6 +18,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Test pip install
+      shell: bash
+      run: |
+        pip install .
+
     - name: Test basic import
       shell: bash
       run: |
