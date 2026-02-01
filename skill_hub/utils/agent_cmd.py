@@ -15,6 +15,10 @@ config_data = {
     ".codex/skills",
     "~/.codex/skills"
   ],
+  "OpenClaw":[
+    ".openclaw/skills"
+    "~/.openclaw/skills"
+  ],
   "OpenCode": [
     ".opencode/skill",
     "~/.config/opencode/skill"

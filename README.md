@@ -61,6 +61,7 @@ Agent Skills Hub 支持以下 AI Agents：
 | ClaudeCode | `.claude/skills` | `~/.claude/skills` |
 | Gemini | `.gemini/skills` | `~/.gemini/skills` |
 | Codex | `.codex/skills` | `~/.codex/skills` |
+| OpenClaw | `.openclaw/skills` | `~/.openclaw/skills` |
 | OpenCode | `.opencode/skill` | `~/.config/opencode/skill` |
 | Cursor | `.cursor/skills` | `~/.cursor/skills` |
 | Antigravity | `.agent/skills` | `~/.gemini/antigravity/skills` |
