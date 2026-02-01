@@ -1,14 +1,17 @@
+
 <div align="center">
 
-English | **[简体中文](README.md)**
+**[English](README_EN.md)** | **[简体中文](README.md)**
 
 # Agent Skills Hub
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.5.0-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Version](https://img.shields.io/badge/version-1.5.1-orange.svg)](https://github.com/youzaiAGI/agent-skills-hub)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/youzaiAGI/agent-skills-hub)
 
 **A unified CLI tool for managing AI Agent skill packages**
+
 
 
 </div>
@@ -25,19 +28,25 @@ Agent Skills Hub is a unified skill package management system that allows you to
 - **Interactive Search**: Interactive search interface for discovering new skills
 - **Flexible Sync**: Support for both project-level and global skill synchronization
 - **Broad Support**: Supports Claude, Cursor, Windsurf, Gemini, Antigravity, Codex, Trae, OpenCode, GitHubCopilot, CodeBuddy, Factory, Amp, Qwen, Qoder, KiloCode, RooCode, Goose, Kimi and more 18+ AI Agents
+- **Cross-Platform**: Support for Windows, Linux, and macOS
 
 ---
 
 ## Release Notes
 
+### v1.5.1
+- **Windows Support**: Full compatibility with Windows, including Windows terminal and path handling
+- **Improved Path Handling**: Cross-platform path processing using pathlib, fixing Windows path separator issues
+- **Enhanced Sync Mechanism**: Automatic fallback from symlinks to directory copy on Windows, no admin privileges required
+
 ### v1.5.0
-- **Added Cross-Project Skill Management**: Support export/import skill lists, enabling batch management experience similar to `pip install -r requirements.txt`
+- **Cross-Project Skill Management**: Support export/import skill lists, enabling batch management experience similar to `pip install -r requirements.txt`
 - **Curated Popular Skill Repositories**: Curated 240 skills from 40 popular GitHub repositories, covering programming, writing, data analysis and other domains
 - **Added Support for More Agents**: Now supports Claude, Cursor, Windsurf, Gemini, Antigravity, Codex, Trae, OpenCode, GitHubCopilot, CodeBuddy, Factory, Amp, Qwen, Qoder, KiloCode, RooCode, Goose, Kimi and more 18+ AI Agents
 
 ### v1.1.0
 - **Added Trae Support**: Now supports skill management for Trae AI Agent
-- **Added Custom Repository Feature**: Manage custom skill repositories with `skill repo add` and `skill repo rm` commands
+- **Custom Repository Feature**: Manage custom skill repositories with `skill repo add` and `skill repo rm` commands
 - **Improved Command Line Experience**: Enhanced command-line interface and interaction logic
 - **Fixed Known Issues**: Resolved some issues during sync and installation processes
 
@@ -80,9 +89,23 @@ pip install agent-skills-hub
 
 ### Install from source
 
+#### Windows
+
 ```bash
 git clone https://github.com/youzaiAGI/agent-skills-hub.git
 cd agent-skills-hub
+python -m venv venv
+venv\Scripts\activate
+pip install -e .
+```
+
+#### Linux / macOS
+
+```bash
+git clone https://github.com/youzaiAGI/agent-skills-hub.git
+cd agent-skills-hub
+python -m venv venv
+source venv/bin/activate
 pip install -e .
 ```
 
@@ -90,7 +113,7 @@ pip install -e .
 
 ```bash
 skill --version
-# Output: Agent Skills Hub v1.5.0
+# Output: Agent Skills Hub v1.5.1
 ```
 
 ---
@@ -373,11 +396,23 @@ owner/
 
 ### Environment Setup
 
+#### Windows
+
 ```bash
 git clone https://github.com/youzaiAGI/agent-skills-hub.git
 cd agent-skills-hub
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+venv\Scripts\activate
+pip install -e .
+```
+
+#### Linux / macOS
+
+```bash
+git clone https://github.com/youzaiAGI/agent-skills-hub.git
+cd agent-skills-hub
+python -m venv venv
+source venv/bin/activate
 pip install -e .
 ```
 
@@ -420,6 +455,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for det
 - Author: youzaiAGI
 - Email: youzaiagi@gmail.com
 - Project homepage: https://github.com/youzaiAGI/agent-skills-hub
+
 
 
 <div align="center">
