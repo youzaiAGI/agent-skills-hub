@@ -16,7 +16,7 @@ config_data = {
     "~/.codex/skills"
   ],
   "OpenClaw":[
-    ".openclaw/skills"
+    ".openclaw/skills",
     "~/.openclaw/skills"
   ],
   "OpenCode": [
